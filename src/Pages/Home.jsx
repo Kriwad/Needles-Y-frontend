@@ -46,7 +46,14 @@ function Home() {
   const [todos, setTodos] = useState([]);
   const navigate = useNavigate();
 
-  const handleLike= (postID)=>{
+  const handleLike= async (postID)=>{
+    try{
+      await api.post(`/api/user/todo/like/${postID}/`)
+      await fetchTodos()
+    }catch(error){
+      console.log("error:",error)
+    }
+    
     setLikedPost((prev)=>({
       ...prev,
       [postID]: !prev[postID] 
@@ -210,6 +217,15 @@ function Home() {
     try {
       const response = await api.get("/api/user/todo/list/");
       setTodos(response.data);
+
+      const likedPostObject = {}
+      response.data.forEach(todo => {
+        if(todo.is_liked){
+          likedPostObject[todo.id]= true;
+        }
+      });
+      setLikedPost(likedPostObject)
+
       console.log(response.data);
     } catch (error) {
       console.log("Problem fetching your data:", error);
@@ -318,9 +334,14 @@ function Home() {
                         </video>
                       )}
                       <div className="mt-4 p-0 flex justify-end gap-9">
-                        <button onClick={()=>handleLike(todo.id)}  className="  text-primary ">
-                          <Heart  className={` h-4 w-4 ${likedPost[todo.id] ? 'text-red-600 fill-red-500':'text-gray-600 fill-transparent' }`  } />
-                        </button>
+                        <div className="flex gap-1" >
+                        {todo.like_count > 0 &&<span className="ml-1 , text-xs font-semibold" >{todo.like_count}</span> }
+                          <button onClick={()=>handleLike(todo.id)}  className="  text-primary ">
+                            <Heart  className={` h-4 w-4 ${todo.is_liked ? 'text-red-600 fill-red-500':'text-gray-600 fill-transparent' }`  } />
+                          </button>
+                          
+                        </div>
+                        
                         <button
                           variant="ghost"
                           size="sm"
