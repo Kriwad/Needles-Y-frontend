@@ -1,5 +1,5 @@
 import React from "react";
-
+import { useState } from "react";
 
  const Modal = ({ 
   isOpen, 
@@ -12,7 +12,28 @@ import React from "react";
   readOnly = false,
   modalType
 }) => {
+  const [isSubmitting , setIsSubmitting] = useState(false)
   if (!isOpen) return null;
+  const handleSubmit= async (e)=>{
+    e.preventDefault();
+
+    if (isSubmitting) return ;
+
+    setIsSubmitting(true)
+    
+    try{
+      await onSubmit(e);
+
+      setIsSubmitting(false)
+
+    }catch(error){
+      console.log("error:" , error)
+      setIsSubmitting(false)
+    }
+
+  }
+  
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6">

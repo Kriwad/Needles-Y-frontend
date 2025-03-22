@@ -53,10 +53,16 @@ function Profile() {
   const [showProfileModal, setShowProfileModal] = useState(false);
 
 
-  const handleLike = (postID)=>{
+  const handleLike = async (postID)=>{
+    try{
+      await api.post(`api/user/todo/like/${postID}/`)
+      await fetchTodos()
+    }catch(error){
+      console.log("error:" , error)
+    }
     setIsLikedPost((prev)=> ({
       ...prev,
-      [postID] : !prev[postID] || false
+      [postID] : !prev[postID] 
     }))
   }
 
@@ -300,9 +306,15 @@ function Profile() {
                     <source src={todo.video} type="video/mp4" />
                   </video>
                 )}
-                <div className="flex justify-end mr-5 gap-9 mt-4">
-                  <button onClick={()=>handleLike(todo.id)} className= "text-primary" ><Heart className={`h-5 w-5 ${likedPost[todo.id] ? "text-red-600 fill-red-500 ": " text-gray-500 fill-transparent " }`}/></button>
+                <div className="flex justify-end gap-9 mt-4">
+                  <div className="flex gap-1" >
+                    {todo.like_count> 0 && <span onClick={()=> navigate(`/liked/${todo.id}/`)} className="ml-1 , text-xs font-semibold" >Liked by{todo.like_count}</span> }
+                      <button onClick={()=>handleLike(todo.id)} className= "text-primary" >
+                        <Heart className={`h-5 w-5 ${todo.is_liked ? "text-red-600 fill-red-500 ": " text-gray-500 fill-transparent " }`}/>
+                      </button>
+                  </div>
                   <button className="" ><MessageCircle className="h-5 w-5" /></button>
+                  
                 </div>
               </CardContent>
             </Card>

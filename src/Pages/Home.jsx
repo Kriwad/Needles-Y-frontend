@@ -335,7 +335,7 @@ function Home() {
                       )}
                       <div className="mt-4 p-0 flex justify-end gap-9">
                         <div className="flex gap-1" >
-                        {todo.like_count > 0 &&<span className="ml-1 , text-xs font-semibold" >{todo.like_count}</span> }
+                        {todo.like_count > 0 &&<span onClick={()=>navigate(`/liked/${todo.id}/`)} className="ml-1 , text-xs text-black font-semibold hover:cursor-pointer hover:text-gray-600" >Liked by {todo.like_count}</span> }
                           <button onClick={()=>handleLike(todo.id)}  className="  text-primary ">
                             <Heart  className={` h-4 w-4 ${todo.is_liked ? 'text-red-600 fill-red-500':'text-gray-600 fill-transparent' }`  } />
                           </button>
@@ -371,7 +371,8 @@ function Home() {
               />
               <button
                 onClick={handleCloseImageModal}
-                className="absolute top-2 right-2 text-white hover:text-gray-300 text-xl"
+                className="absolute top-90-p[']\78
+                /l.,8-790643c2x1fzResx right-2 text-white hover:text-gray-300 text-xl"
               >
                 ×
               </button>
