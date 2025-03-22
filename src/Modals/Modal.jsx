@@ -46,7 +46,7 @@ import { useState } from "react";
             &times;
           </button>
         </div>
-        <form onSubmit={onSubmit}>
+        <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700">
               Title
