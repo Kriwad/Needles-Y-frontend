@@ -127,14 +127,14 @@ function Profile() {
   const handleCreateTodo = async (e) => {
     e.preventDefault();
     const formDataToSend = new FormData();
-    formDataToSend.append("title" , formData.title)
-    formDataToSend.append("goal" , formData.goal)
-    if (formData.image){
-      formDataToSend.append("image" , formData.image)
-
-    }
-    if (formData.video){
-      formDataToSend.append("video" , formData.video)
+    for (const key in formData){
+      if (formData[key] instanceof FileList){
+        for (let i = 0 ; i < formData[key].length ; i++){
+          formDataToSend.append(`${key}`,formData[key][i])
+        }
+      }else if (formData[key]) {
+        formDataToSend.append(key , formData[key])
+      }
     }
 
     try {
@@ -150,6 +150,7 @@ function Profile() {
   const handleEditTodo = async (e) => {
     e.preventDefault();
     const formDataToSend = new FormData();
+    
     formDataToSend.append("title" , formData.title)
     formDataToSend.append("goal" , formData.goal)
     if (formData.image){
@@ -184,7 +185,7 @@ function Profile() {
   const handleProfileEdit = async (e) => {
     e.preventDefault();
     const formDataToSend = new FormData();
-    formDataToSend.append("fullnaame" , user.fullname)
+    formDataToSend.append("fullname" , user.fullname)
     formDataToSend.append("username" , user.username)
     formDataToSend.append("bio" , user.bio)
     if (user.image instanceof File){
@@ -298,13 +299,24 @@ function Profile() {
               <CardContent>
                 <h3 className="text-lg mt-5 font-semibold">{todo.title}</h3>
                 <p className="text-gray-700 mt-2">{todo.goal}</p>
-                {todo.image && (
-                  <img src={todo.image} alt="" className="mt-4 rounded-lg w-full" />
+                {todo.images && todo.images.length > 0 && (
+                  <div>
+                    {todo.images.map((imageItem , index)=>(
+                      <img key={`image: ${index}`} src={imageItem.image} alt="" className="mt-4 h-[350px] rounded-lg w-full" />
+                    ))}
+                  </div>
+                  
                 )}
-                {todo.video && (
-                  <video controls className="mt-4 rounded-lg w-full">
-                    <source src={todo.video} type="video/mp4" />
-                  </video>
+                {todo.videos && todo.videos.length > 0 && (
+                  <div>
+                    {todo.videos.map((videoItem , index)=>(
+                      <video controls className="mt-4 rounded-lg w-[100%] h-[340px] ">
+                        <source key={`video:${index}`} src={videoItem.video} type="video/mp4" />
+                      </video>
+                    ))}
+                  </div>
+                  
+                  
                 )}
                 <div className="flex justify-end gap-9 mt-4">
                   <div className="flex gap-1" >

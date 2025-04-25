@@ -65,7 +65,7 @@ function Home() {
     if (type === "file") {
       setFormData((prevState) => ({
         ...prevState,
-        [name]: files[0],
+        [name]: files,
       }));
     } else {
       setFormData((prevState) => ({
@@ -115,21 +115,25 @@ function Home() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formDataToSend = new FormData();
-    formDataToSend.append("title", formData.title);
-    formDataToSend.append("goal", formData.goal);
-    if (formData.image) {
-      formDataToSend.append("image", formData.image);
+    for (const key in formData) {
+      if (formData[key] instanceof FileList) {
+        for (let i = 0; i < formData[key].length; i++) {
+          formDataToSend.append(`${key}`, formData[key][i]);
+        }
+      } else if (formData[key]) {
+        formDataToSend.append(key, formData[key]);
+      }
     }
-    if (formData.video) {
-      formDataToSend.append("video", formData.video);
-    }
-
+  
     try {
       await api.post("/api/user/todo/", formDataToSend);
-      await fetchTodos();
-      handleCloseModel();
+      await fetchTodos(); // Refresh the todos list
+      handleCloseModel(); // Close the modal
+      
+     
     } catch (error) {
-      console.log("error");
+      console.log("error:", error);
+      handleCloseModel(); // Close the modal even if there's an error
     }
   };
 
@@ -152,6 +156,8 @@ function Home() {
     if (!selectTodo) return;
     e.preventDefault();
     const formDataToSend = new FormData();
+    
+
     formDataToSend.append("title", formData.title);
     formDataToSend.append("goal", formData.goal);
     if (formData.image) {
@@ -163,8 +169,9 @@ function Home() {
 
     try {
       await api.put(`/api/user/todo/edit/${selectTodo.id}/`, formDataToSend);
-      await fetchTodos();
       handleEditCloseModal();
+      await fetchTodos();
+      
     } catch (error) {
       console.log("error");
     }
@@ -319,19 +326,33 @@ function Home() {
                       <p className="text-sm w-[95%] text-muted-foreground whitespace-pre-wrap mt-1 break-words">
                         {todo.goal}
                       </p>
-                      {todo.image && (
-                        <img
-                          src={todo.image}
-                          onClick={() => handleImageClick(todo.image)}
-                          className="mt-2 w-full rounded-lg"
-                          alt=""
-                        />
+                      {todo.images && todo.images.length > 0 &&(
+                        <div  >  
+                          {todo.images.map((imageItem , index)=>(
+                             <img 
+                             key={`image : ${index}`}
+                             src={imageItem.image}
+                             onClick={() => handleImageClick(imageItem.image)}
+                             className="mt-2 w-[100%] h-[350px] rounded-lg"
+                             alt=""
+                           />
+                          ))}
+                         
+                        </div>
+                        
+                        
                       )}
-                      {todo.video && (
-                        <video controls className="mt-2 w-full rounded-lg">
-                          <source src={todo.video} type="video/mp4" />
-                          Your browser does not support the video tag
-                        </video>
+                      {todo.videos && todo.videos.length > 0 &&(
+                        <div>
+                          {todo.videos.map((videoItem , index)=>(
+                          <video controls className="mt-2 w-full h-[350px]   rounded-lg">
+                            <source key = {`video : ${index}`} src={videoItem.video} type="video/mp4" />
+                            Your browser does not support the video tag
+                          </video>
+                        ))}
+                        </div>
+                        
+                        
                       )}
                       <div className="mt-4 p-0 flex justify-end gap-9">
                         <div className="flex gap-1" >
@@ -385,7 +406,7 @@ function Home() {
           isClosed={handleCloseModel}
           onSubmit={handleSubmit}
           title="Create a New Needle"
-          submitText="Upload"
+          submitText="Create"
           formData={formData}
           handleInputChange={handleInputChange}
           modalType="submit"
@@ -407,7 +428,7 @@ function Home() {
           onSubmit={handleDelete}
           isClosed={handleDeleteCloseModal}
           title="Delete Needle"
-          submitText="Discard"
+          submitText="Delete"
           formData={formData}
           handleInputChange={handleInputChange}
           readOnly={true}

@@ -75,7 +75,9 @@ import { useState } from "react";
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             ></textarea>
           </div>
-          <div className="mb-4">
+          {modalType !== "edit" && modalType !== "delete" && (
+            <>
+              <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700">
               Image
             </label>
@@ -86,7 +88,6 @@ import { useState } from "react";
               accept="image/"
               multiple
               readOnly={readOnly}
-             
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             ></input>
           </div>
@@ -99,12 +100,17 @@ import { useState } from "react";
             type = "file"
               name="video"
               onChange={handleInputChange}
+              multiple
               accept="video/*"
              
              
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             ></input>
           </div>
+            
+            </>
+          )}
+          
           <div className="flex justify-end">
             <button
               type="submit"
