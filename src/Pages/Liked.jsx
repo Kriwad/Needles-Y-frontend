@@ -10,6 +10,7 @@ import  {Avatar, AvatarImage, AvatarFallback} from '../Components/ui/avatar'
 import { faAngleLeft } from '@fortawesome/free-solid-svg-icons'
 function Liked() {
   const {todoId} = useParams()
+  console.log("Id is this very op id",todoId)
   const [users , setUser]= useState([])
   const navigate = useNavigate()
   const fetchLikeUser = async ()=>{

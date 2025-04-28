@@ -356,10 +356,10 @@ function Home() {
                       )}
                       <div className="mt-4 p-0 flex justify-end gap-9">
                         <div className="flex gap-1" >
-                        {todo.like_count > 0 &&<span onClick={()=>navigate(`/liked/${todo.id}/`)} className="ml-1 , text-xs text-black font-semibold hover:cursor-pointer hover:text-gray-600" >Liked by {todo.like_count}</span> }
-                          <button onClick={()=>handleLike(todo.id)}  className="  text-primary ">
-                            <Heart  className={` h-4 w-4 ${todo.is_liked ? 'text-red-600 fill-red-500':'text-gray-600 fill-transparent' }`  } />
-                          </button>
+                          {todo.like_count > 0 &&<span onClick={()=>navigate(`/liked/${todo.id}/`)} className="ml-1 , text-xs text-black font-semibold hover:cursor-pointer hover:text-gray-600" >Liked by {todo.like_count}</span> }
+                            <button onClick={()=>handleLike(todo.id)}  className="  text-primary ">
+                              <Heart  className={` h-4 w-4 ${todo.is_liked ? 'text-red-600 fill-red-500':'text-gray-600 fill-transparent' }`  } />
+                            </button>
                           
                         </div>
                         
@@ -367,6 +367,7 @@ function Home() {
                           variant="ghost"
                           size="sm"
                           className="text-primary"
+                          onClick={() => navigate(`/comment/${todo.id}/`)}
                         >
                           <MessageCircle className="mr-5 h-4 w-4" />
                         </button>

@@ -11,6 +11,7 @@ import ProtectedRoute from './Pages/ProtectedRoutes.jsx'
 import Home from './Pages/Home.jsx'
 import Profile from './Pages/Profile.jsx'
 import Liked from './Pages/Liked.jsx'
+import Comment from './Pages/Comment.jsx'
 
 function Logout(){
   localStorage.clear()
@@ -30,6 +31,7 @@ const router = createBrowserRouter(
     <Route path="logout/" element={<Logout />} /> 
     <Route path="register/" element={<RegisterAndLogout />} />
     <Route path="profile/:userId/" element={<Profile />} /> 
+    <Route path="comment/:todoId/" element={<Comment />} /> 
     <Route path="liked/:todoId/" element={<Liked />} /> 
     
     

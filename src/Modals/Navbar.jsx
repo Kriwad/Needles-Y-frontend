@@ -7,17 +7,19 @@ import { faPlus, faSearch ,faBars } from '@fortawesome/free-solid-svg-icons';
 import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar";
 import { Sheet, SheetContent, SheetTrigger } from "@/Components/ui/sheet"
 import { useLocation } from 'react-router-dom';
+
 import api from '../api';
 
 
 
-const Navbar = ({ onOpenModal }) => {
+const Navbar = ({ onOpenModal , profileUpdated }) => {
   const { userId } = useParams()
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
   const location = useLocation()
-  const isProfilePage =  userId ? location.pathname === `/profile/${userId}` : false;
 
+  const isProfilePage =  userId ? location.pathname === `/profile/${userId}` : false;
+  const hideButton = location.pathname.startsWith("/comment/")
   const handleSearch = (e) => {
     setSearch(e.target.value);
    
@@ -44,13 +46,9 @@ const Navbar = ({ onOpenModal }) => {
 
   useEffect(()=> {
     fetchUser()
-   },[])
+   },[profileUpdated])
 
-  useEffect(() => {
-    
-    console.log("Updated userData:", userData);
-  }, [userData]);
-  
+
   const handleLogout = (e) => {
     localStorage.removeItem("access");
     localStorage.removeItem("refresh");
@@ -90,12 +88,12 @@ const Navbar = ({ onOpenModal }) => {
           </div>
 
           <div className="flex items-end justify-end gap-5 ">
-            <button
+            { !hideButton &&  (<button
               onClick={onOpenModal}
               className="w-10 h-10 bg-white bg-opacity-20 text-white rounded-full hover:bg-opacity-30 focus:outline-none focus:ring-2 focus:ring-white transition duration-300 transform hover:scale-110"
             >
               <FontAwesomeIcon icon={faPlus} size="lg" />
-            </button>
+            </button>)}
 
             {userData && (
               <div className="flex items-center space-x-2">
@@ -103,7 +101,7 @@ const Navbar = ({ onOpenModal }) => {
                   className="h-8 w-8 cursor-pointer"
                   onClick={() => {
                     if (!isProfilePage) {
-                      navigate(`profile/${userData.id}`)
+                      navigate(`/profile/${userData.id}`)
                     }
                   }}
                 >
@@ -112,7 +110,7 @@ const Navbar = ({ onOpenModal }) => {
                 </Avatar>
                 <span onClick={() => {
                             if (!isProfilePage) {
-                              navigate(`profile/${userData.id}`)
+                              navigate(`/profile/${userData.id}`)
                             }
                           }} className="text-white hover:underline cursor-pointer">{userData.username}</span>
               </div>
@@ -127,9 +125,9 @@ const Navbar = ({ onOpenModal }) => {
         </div>
 
         {/* Mobile View */}
-        <div className="sm:hidden flex justify-evenly gap-2">
+        <div className="sm:hidden flex items-center justify-between gap-2 ">
           {/* Logo */}
-          <div className="  flex-shrink-0">
+          <div className="  flex">
             <span onClick={() => navigate("/")} className="text-xl font-bold text-white cursor-pointer">
               NeedlesY
             </span>
@@ -153,12 +151,12 @@ const Navbar = ({ onOpenModal }) => {
 
           {/* Action Buttons */}
           <div className="flex items-center gap-5">
-            <button
+            { !hideButton &&  (<button
               onClick={onOpenModal}
               className="w-8 h-8 bg-zinc-800 text-white rounded-full hover:bg-zinc-700 focus:outline-none focus:ring-1 focus:ring-white/50 transition duration-300 flex items-center justify-center"
             >
               <FontAwesomeIcon icon={faPlus} className="text-sm" />
-            </button>
+            </button>)}
 
             <Sheet className= "" >
               <SheetTrigger asChild>
@@ -175,20 +173,20 @@ const Navbar = ({ onOpenModal }) => {
                           className="h-10 w-10"
                           onClick={() => {
                             if (!isProfilePage) {
-                              navigate(`profile/${userData.id}`)
+                              navigate(`/profile/${userData.id}`)
                             }
                           }}
                         >
                           <AvatarImage
                             src={userData.image || "/placeholder.svg?height=40&width=40"}
-                            alt={userData.fullname}
+                            
                           />
                           <AvatarFallback  >{userData.fullname[0]}</AvatarFallback>
                         </Avatar>
                         <div>
                           <h2 onClick={() => {
                             if (!isProfilePage) {
-                              navigate(`profile/${userData.id}`)
+                             
                             }
                           }} className="text-lg font-semibold">{userData.username}</h2>
                           <p className="text-sm text-gray-500">View Profile</p>

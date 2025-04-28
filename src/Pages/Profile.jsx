@@ -51,7 +51,7 @@ function Profile() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
-
+  const [profileUpdated , setProfileUpdated] = useState(false)
 
   const handleLike = async (postID)=>{
     try{
@@ -80,20 +80,8 @@ function Profile() {
     }
   };
 
-  const handleProfileChange = (e) => {
-    const { name, value, type, files } = e.target;
-   
-    if (type === "file"){
-      setUser((prev)=>({
-        ...prev , [name] : files[0]
-      }))
-    }else{
-      setUser((prev)=>({
-        ...prev , [name]: value,
-      }))
-    }
-  };
-  //handles close profile
+  
+
  
 
   // API calls
@@ -123,6 +111,20 @@ function Profile() {
     }
   };
 
+  const handleProfileChange = (e) => {
+    const { name, value, type, files } = e.target;
+   
+    if (type === "file"){
+      setUser((prev)=>({
+        ...prev , [name] : files[0]
+      }))
+    }else{
+      setUser((prev)=>({
+        ...prev , [name]: value,
+      }))
+    }
+    
+  };
   // Form submissions
   const handleCreateTodo = async (e) => {
     e.preventDefault();
@@ -194,10 +196,13 @@ function Profile() {
     }
 
     try {
-      await api.put(`api/user/profile/${userId}/`, formDataToSend);
+      await api.patch(`api/user/profile/${userId}/`, formDataToSend)
+      setProfileUpdated(prev => !prev);
       await fetchUser();
-      
+      await fetchCurrentUser();
+      await fetchTodos();
       setShowProfileModal(false);
+      
     } catch (error) {
       console.error("Error updating profile:", error);
     }
@@ -211,7 +216,7 @@ function Profile() {
 
   return (
     <div className="w-1vh h-1vh bg-zinc-200">
-      <Navbar onOpenModal={() => setShowCreateModal(true)} />
+      <Navbar onOpenModal={() => setShowCreateModal(true)} profileUpdated={profileUpdated} />
       
       {/* Profile Card */}
       <div className="container mx-auto mb-5">
