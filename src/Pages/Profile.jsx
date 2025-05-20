@@ -219,14 +219,14 @@ function Profile() {
       <Navbar onOpenModal={() => setShowCreateModal(true)} profileUpdated={profileUpdated} />
       
       {/* Profile Card */}
-      <div className="container mx-auto mb-5">
-        <Card className="w-full border-2 max-w-4xl mx-auto rounded-md">
+      <div className="container mx-auto border-b-[20px]">
+        <Card  style={{boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)'}} className="w-full  max-w-3xl mx-auto rounded-md">
           <div className="relative h-48 bg-gradient-to-r from-slate-300 to-slate-300">
             <Avatar
               className="absolute top-10 left-24 transform -translate-x-1/2 translate-y-1/2 w-32 h-32 border-4 border-white"
               onClick={user && user.id === currentUser ? () => navigate("/") : undefined}
             >
-              <AvatarImage src={user?.image || "/placeholder.svg"} alt={user?.fullname} />
+              <AvatarImage className=" h- " src={user?.image || "/placeholder.svg"} alt={user?.fullname} />
               <AvatarFallback>{user?.fullname?.[0]?.toUpperCase()}</AvatarFallback>
             </Avatar>
           </div>
@@ -257,25 +257,25 @@ function Profile() {
           <p className="text-center text-gray-500">No todos found.</p>
         ) : (
           todos.map(todo => (
-            <Card key={todo.id} className="max-w-4xl mx-auto mb-4 border-2">
+            <Card key={todo.id} style={{boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)'}} className="max-w-3xl mx-auto px-0 mb-[18px] rounded-md">
               <CardHeader className="flex flex-row items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Avatar className="h-10 w-10">
+                <div className="flex items-center gap-3 pl-5">
+                  <Avatar className="h-10 w-10  ">
                     <AvatarImage src={todo.user.image || "/placeholder.svg"} />
                     <AvatarFallback>{todo.user.fullname[0]}</AvatarFallback>
                   </Avatar>
                   <div  >
                     <p className="font-semibold">{todo.user.username}</p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-xs font-extralight text-gray-500">
                       {formatDistanceToNow(new Date(todo.created_at), { addSuffix: true })}
                     </p>
                   </div>
                 </div>
 
                 {user && currentUser === user.id && (
-                  <DropdownMenu>
+                  <DropdownMenu  >
                     <DropdownMenuTrigger>
-                      <FontAwesomeIcon icon={faEllipsisV} />
+                      <FontAwesomeIcon className="pr-5" icon={faEllipsisV} />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
                       <DropdownMenuItem onClick={() => {
@@ -301,13 +301,13 @@ function Profile() {
                 )}
               </CardHeader>
 
-              <CardContent>
-                <h3 className="text-lg mt-5 font-semibold">{todo.title}</h3>
-                <p className="text-gray-700 mt-2">{todo.goal}</p>
+              <CardContent className=" h-auto px-0 " >
+                <h3 className="text-lg mt-5 pl-5 font-semibold">{todo.title}</h3>
+                <p className="text-gray-700 pl-5 mt-2">{todo.goal}</p>
                 {todo.images && todo.images.length > 0 && (
-                  <div>
+                  <div className="h-auto ">
                     {todo.images.map((imageItem , index)=>(
-                      <img key={`image: ${index}`} src={imageItem.image} alt="" className="mt-4 h-[350px] rounded-lg w-full" />
+                      <img key={`image: ${index}`} src={imageItem.image} alt=""className="mt-2 px-0 w-full h-auto max-h-[600px] rounded-s" />
                     ))}
                   </div>
                   
@@ -315,7 +315,7 @@ function Profile() {
                 {todo.videos && todo.videos.length > 0 && (
                   <div>
                     {todo.videos.map((videoItem , index)=>(
-                      <video controls className="mt-4 rounded-lg w-[100%] h-[340px] ">
+                      <video controls className="mt-2 px-0 w-full h-auto max-h-[600px] rounded-s">
                         <source key={`video:${index}`} src={videoItem.video} type="video/mp4" />
                       </video>
                     ))}
@@ -323,14 +323,23 @@ function Profile() {
                   
                   
                 )}
-                <div className="flex justify-end gap-9 mt-4">
-                  <div className="flex gap-1" >
-                    {todo.like_count> 0 && <span onClick={()=> navigate(`/liked/${todo.id}/`)} className="ml-1 , text-xs font-semibold" >Liked by{todo.like_count}</span> }
-                      <button onClick={()=>handleLike(todo.id)} className= "text-primary" >
-                        <Heart className={`h-5 w-5 ${todo.is_liked ? "text-red-600 fill-red-500 ": " text-gray-500 fill-transparent " }`}/>
+                <div className=" pt-2 mt-5 flex justify-end border-t-2  border-slate-300
+                 ">
+                  <div className="flex items-center" >
+                    {todo.like_count > 0 &&<span onClick={()=>navigate(`/liked/${todo.id}/`)} className="mr-1 text-center text-s text-slate-600 font-semibold hover:cursor-pointer hover:text-gray-400" >Liked by {todo.like_count}</span> }
+                      <button onClick={()=>handleLike(todo.id)}  className="  text-primary ">
+                        <Heart  className={` size-5  mr-8 ml-1 ${todo.is_liked ? 'text-red-600 fill-red-500':'text-gray-600 fill-transparent' }`  } />
                       </button>
+                      <button
+                        variant="ghost"
+                        size="sm"
+                        className="text-primary"
+                        onClick={() => navigate(`/comment/${todo.id}/`)}
+                      >
+                        <MessageCircle className="mr-7 size-5" />
+                      </button>        
                   </div>
-                  <button className="" ><MessageCircle className="h-5 w-5" /></button>
+                                        
                   
                 </div>
               </CardContent>

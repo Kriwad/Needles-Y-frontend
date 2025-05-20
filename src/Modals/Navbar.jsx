@@ -62,7 +62,7 @@ const Navbar = ({ onOpenModal , profileUpdated }) => {
     <nav className="mb-0 items-center justify-between bg-black py-4 shadow-md">
       <div className="container mx-auto">
         {/* Desktop View */}
-        <div className="hidden sm:flex items-center justify-between px-4">
+        <div className="hidden sm:flex items-center justify-evenly ">
           <div className="flex-shrink-0 mr-4">
             <span onClick={() => navigate("/")} className="text-2xl font-bold text-white cursor-pointer">
               NeedlesY
@@ -86,9 +86,11 @@ const Navbar = ({ onOpenModal , profileUpdated }) => {
               </button>
             </div>
           </div>
-
-          <div className="flex items-end justify-end gap-5 ">
-            { !hideButton &&  (<button
+          
+          <div className="flex justify-evenly gap-5 ">
+            { !hideButton &&  (
+            
+            <button
               onClick={onOpenModal}
               className="w-10 h-10 bg-white bg-opacity-20 text-white rounded-full hover:bg-opacity-30 focus:outline-none focus:ring-2 focus:ring-white transition duration-300 transform hover:scale-110"
             >

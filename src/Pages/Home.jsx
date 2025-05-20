@@ -256,11 +256,11 @@ function Home() {
           ) : (
             todos.map((todo) => (
               <div key={todo.id} className=" rounded-lg  transition-shadow">
-                <div className="container flex justify-center  border-solid mx-auto">
-                  <Card key={todo.id} className="mw-full border-solid border-2  max-w-2xl mx-auto rounded-md overflow-hidden mb-2 w-full">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <div className="flex items-center gap-2 ">
-                        <Avatar className="h-10 w-10">
+                <div className="container flex justify-center  mx-auto">
+                  <Card key={todo.id} style={{boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)'}} className="mw-full max-w-2xl mx-0 px-0 rounded-lg overflow-hidden mb-[18px]  w-full">
+                    <CardHeader className="flex  flex-row items-center  justify-between space-y-0 ">
+                      <div className="flex items-center gap-3 pl-5  ">
+                        <Avatar className="h-10 w-10  " >
                           <AvatarImage
                             src={
                               todo.user.image ||
@@ -319,58 +319,60 @@ function Home() {
                         </DropdownMenu>
                       )}
                     </CardHeader>
-                    <CardContent className="pb-4">
-                      <h3 className="text-lg font-semibold mt-2">
+                    <CardContent className=" mb-0 pb-0 h-auto px-0">
+                      <h3 className="text-lg pl-5 font-semibold mt-2">
                         {todo.title}
                       </h3>
-                      <p className="text-sm w-[95%] text-muted-foreground whitespace-pre-wrap mt-1 break-words">
+                      <p className="text-sm w-[95%] pl-5 text-muted-foreground whitespace-pre-wrap mt-1 break-words">
                         {todo.goal}
                       </p>
                       {todo.images && todo.images.length > 0 &&(
-                        <div  >  
-                          {todo.images.map((imageItem , index)=>(
-                             <img 
-                             key={`image : ${index}`}
-                             src={imageItem.image}
-                             onClick={() => handleImageClick(imageItem.image)}
-                             className="mt-2 w-[100%] h-[350px] rounded-lg"
-                             alt=""
-                           />
-                          ))}
+                      <div className="h-auto" >  
+                        {todo.images.map((imageItem , index)=>(
+                            <img 
+                            key={`image : ${index}`}
+                            src={imageItem.image}
+                            onClick={() => handleImageClick(imageItem.image)}
+                            className="mt-2 px-0 w-[900%]  h-auto  max-h-[500px] rounded-s"
+                            alt=""
+                          />
+                        ))}
                          
-                        </div>
-                        
+                      </div>
+                      
                         
                       )}
                       {todo.videos && todo.videos.length > 0 &&(
-                        <div>
-                          {todo.videos.map((videoItem , index)=>(
-                          <video controls className="mt-2 w-full h-[350px]   rounded-lg">
-                            <source key = {`video : ${index}`} src={videoItem.video} type="video/mp4" />
+                      <div className="h-auto" >
+                        {todo.videos.map((videoItem , index)=>(
+                        <video controls className="mt-2 px-0 w-full rounded-s h-auto">
+                          <source key = {`video : ${index}`} src={videoItem.video} type="video/mp4" />
                             Your browser does not support the video tag
-                          </video>
-                        ))}
+                        </video>
+                      ))}
+                        
                         </div>
+                        
                         
                         
                       )}
-                      <div className="mt-4 p-0 flex justify-end gap-9">
-                        <div className="flex gap-1" >
-                          {todo.like_count > 0 &&<span onClick={()=>navigate(`/liked/${todo.id}/`)} className="ml-1 , text-xs text-black font-semibold hover:cursor-pointer hover:text-gray-600" >Liked by {todo.like_count}</span> }
-                            <button onClick={()=>handleLike(todo.id)}  className="  text-primary ">
-                              <Heart  className={` h-4 w-4 ${todo.is_liked ? 'text-red-600 fill-red-500':'text-gray-600 fill-transparent' }`  } />
+                      <div className="pt-2 mt-5  flex justify-end border-t-2  border-slate-300">
+                        <div className="flex items-center" >
+                          {todo.like_count > 0 &&<span onClick={()=>navigate(`/liked/${todo.id}/`)} className=" text-center text-s text-slate-600 font-semibold hover:cursor-pointer hover:text-gray-600" >Liked by {todo.like_count}</span> }
+                            <button onClick={()=>handleLike(todo.id)}  className=" text-primary ">
+                              <Heart  className={` size-5 mr-8 ml-1 ${todo.is_liked ? 'text-red-600 fill-red-500':'text-gray-600 fill-transparent' }`  } />
+                            </button> 
+                            <button
+                              variant="ghost"
+                              size="sm"
+                              className="text-primary"
+                              onClick={() => navigate(`/comment/${todo.id}/`)}
+                            >
+                              <MessageCircle className="mr-7 size-5" />
                             </button>
-                          
                         </div>
                         
-                        <button
-                          variant="ghost"
-                          size="sm"
-                          className="text-primary"
-                          onClick={() => navigate(`/comment/${todo.id}/`)}
-                        >
-                          <MessageCircle className="mr-5 h-4 w-4" />
-                        </button>
+                        
                       </div>
                     </CardContent>
                   </Card>

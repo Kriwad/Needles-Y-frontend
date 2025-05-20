@@ -40,85 +40,89 @@ function comment() {
             
             
             
-            <div className="flex w-full h-auto items-center">
-                <Card className="w-full h-auto bg-white">
-                    <CardHeader>
-                    
-                    {/* Top Section: Avatar, Username, Date, Dropdown */}
-                    <div className="flex justify-between items-start">
+            <div className="flex w-full h-full items-center">
+                <div className='flex w-full justify-center items-center' >
+                    <Card className="mw-full border-solid border-2  max-w-2xl mx-auto rounded-md overflow-hidden mb-2 w-full">
+                        <CardHeader>
                         
-                        {/* Left Side: Avatar + Username + Date */}
-                        <div className="flex gap-2">
-                        <Avatar>
-                            <AvatarImage src={commentData?.user?.image} />
-                            <AvatarFallback>
-                            {commentData?.user?.username[0]?.toUpperCase()}
-                            </AvatarFallback>
-                        </Avatar>
+                        {/* Top Section: Avatar, Username, Date, Dropdown */}
+                        <div className="flex justify-between items-start">
+                            
+                            {/* Left Side: Avatar + Username + Date */}
+                            <div className="flex gap-2">
+                            <Avatar>
+                                <AvatarImage src={commentData?.user?.image} />
+                                <AvatarFallback>
+                                {commentData?.user?.username[0]?.toUpperCase()}
+                                </AvatarFallback>
+                            </Avatar>
 
-                        <div className="flex flex-col">
-                            <h2 className="text-sm font-bold hover:underline cursor-pointer">
-                            {commentData?.user?.username}
-                            </h2>
-                            <p className="text-xs font-extralight text-gray-500">
-                            {commentData?.created_at && 
-                                formatDistanceToNow(new Date(commentData.created_at), { addSuffix: true })
-                            }
-                            </p>
+                            <div className="flex flex-col">
+                                <h2 className="text-sm font-bold hover:underline cursor-pointer">
+                                {commentData?.user?.username}
+                                </h2>
+                                <p className="text-xs font-extralight text-gray-500">
+                                {commentData?.created_at && 
+                                    formatDistanceToNow(new Date(commentData.created_at), { addSuffix: true })
+                                }
+                                </p>
+                            </div>
+                            </div>
+
+                            {/* Right Side: Dropdown (if user is the owner) */}
+                            {userid === commentData?.user?.id && (
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                <button>
+                                    <FontAwesomeIcon icon={faEllipsisV} className="h-4 w-4" />
+                                </button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent>
+                                <DropdownMenuItem>
+                                    <FontAwesomeIcon icon={faEdit} className="mr-2" />
+                                    Edit
+                                </DropdownMenuItem>
+                                <DropdownMenuItem>
+                                    <FontAwesomeIcon icon={faTrash} className="mr-2" />
+                                    Delete
+                                </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                            )}
+
                         </div>
-                        </div>
 
-                        {/* Right Side: Dropdown (if user is the owner) */}
-                        {userid === commentData?.user?.id && (
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                            <button>
-                                <FontAwesomeIcon icon={faEllipsisV} className="h-4 w-4" />
-                            </button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent>
-                            <DropdownMenuItem>
-                                <FontAwesomeIcon icon={faEdit} className="mr-2" />
-                                Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                                <FontAwesomeIcon icon={faTrash} className="mr-2" />
-                                Delete
-                            </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                        )}
+                        {/* Content Section: Title, Goal, Images */}
+                        <div className="mt-4 flex flex-col gap-2">
+                            {commentData.title && (
+                            <CardContent>{commentData.title}</CardContent>
+                            )}
 
-                    </div>
+                            {commentData.goal && (
+                            <CardContent>{commentData.goal}</CardContent>
+                            )}
 
-                    {/* Content Section: Title, Goal, Images */}
-                    <div className="mt-4 flex flex-col gap-2">
-                        {commentData.title && (
-                        <CardContent>{commentData.title}</CardContent>
-                        )}
-
-                        {commentData.goal && (
-                        <CardContent>{commentData.goal}</CardContent>
-                        )}
-
-                        {commentData.images?.length > 0 && commentData.images.map((image) => (
-                        <CardContent key={`image-${image.id}`}>
-                            <img
-                            src={image.image}
-                            alt="Comment Image"
-                            className="w-full rounded-md object-cover"
-                            />
-                        </CardContent>
-                        ))}
-                        {commentData.videos?.length> 0 && commentData.videos.map(video =>(
-                            <CardContent key={`videos-${video.id}`} type="video/mp4">
-                                <video controls src={video.video}></video>
+                            {commentData.images?.length > 0 && commentData.images.map((image) => (
+                            <CardContent key={`image-${image.id}`}>
+                                <img
+                                src={image.image}
+                                className="mt-2 w-[100%] h-[350px] rounded-lg"
+                                alt="Comment Image"
+                                
+                                />
                             </CardContent>
-                        ))}
-                    </div>
+                            ))}
+                            {commentData.videos?.length> 0 && commentData.videos.map(video =>(
+                                <CardContent key={`videos-${video.id}`} type="video/mp4">
+                                    <video controls src={video.video}></video>
+                                </CardContent>
+                            ))}
+                        </div>
 
-                    </CardHeader>
-                </Card>
+                        </CardHeader>
+                    </Card>
+                </div>
+                
             </div>
 
             
