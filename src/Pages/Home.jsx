@@ -32,24 +32,24 @@ function Home() {
   const [user, setUser] = useState(null);
   const [editModal, setEditModal] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
-  const [selectTodo, setSelectTodo] = useState(null);
+  const [selectPost, setSelectPost] = useState(null);
   const [search, setSearch] = useState("");
   const [likedPost , setLikedPost] = useState({})
   const [formData, setFormData] = useState({
     title: "",
-    goal: "",
+    content: "",
     image: null,
     video: null,
   });
   const [imageModalOpen, setImageModalOpen] = useState(false);
   const [selectedImage, setSelectedimage] = useState(null);
-  const [todos, setTodos] = useState([]);
+  const [posts, setPosts] = useState([]);
   const navigate = useNavigate();
 
   const handleLike= async (postID)=>{
     try{
-      await api.post(`/api/user/todo/like/${postID}/`)
-      await fetchTodos()
+      await api.post(`/api/user/post/like/${postID}/`)
+      await fetchPosts()
     }catch(error){
       console.log("error:",error)
     }
@@ -78,11 +78,11 @@ function Home() {
   const resetForm = () => {
     setFormData({
       title: "",
-      goal: "",
+      content: "",
       image: null,
       video: null,
     });
-    setSelectTodo(null);
+    setSelectPost(null);
   };
 
   // handels image opening
@@ -126,8 +126,8 @@ function Home() {
     }
   
     try {
-      await api.post("/api/user/todo/", formDataToSend);
-      await fetchTodos(); // Refresh the todos list
+      await api.post("/api/user/post/", formDataToSend);
+      await fetchPosts(); // Refresh the posts list
       handleCloseModel(); // Close the modal
       
      
@@ -138,12 +138,12 @@ function Home() {
   };
 
   // handels edit modal
-  const handleEditOpenModal = (todo) => {
+  const handleEditOpenModal = (post) => {
     setEditModal(true);
-    setSelectTodo(todo);
+    setSelectPost(post);
     setFormData({
-      title: todo.title,
-      goal: todo.goal,
+      title: post.title,
+      content: post.content,
     });
   };
   const handleEditCloseModal = () => {
@@ -151,15 +151,15 @@ function Home() {
     resetForm();
   };
 
-  // handels editing of a todo
+  // handels editing of a post
   const handleEdit = async (e) => {
-    if (!selectTodo) return;
+    if (!selectPost) return;
     e.preventDefault();
     const formDataToSend = new FormData();
     
 
     formDataToSend.append("title", formData.title);
-    formDataToSend.append("goal", formData.goal);
+    formDataToSend.append("content", formData.content);
     if (formData.image) {
       formDataToSend.append("image", formData.image);
     }
@@ -168,9 +168,9 @@ function Home() {
     }
 
     try {
-      await api.put(`/api/user/todo/edit/${selectTodo.id}/`, formDataToSend);
+      await api.put(`/api/user/post/edit/${selectPost.id}/`, formDataToSend);
       handleEditCloseModal();
-      await fetchTodos();
+      await fetchPosts();
       
     } catch (error) {
       console.log("error");
@@ -180,12 +180,12 @@ function Home() {
   
 
   // handles delete modal
-  const handleDeleteOpenModal = (todo) => {
+  const handleDeleteOpenModal = (post) => {
     setDeleteModal(true);
-    setSelectTodo(todo);
+    setSelectPost(post);
     setFormData({
-      title: todo.title,
-      goal: todo.goal,
+      title: post.title,
+      content: post.content,
     });
   };
 
@@ -194,11 +194,11 @@ function Home() {
   };
 
   const handleDelete = async (e) => {
-    if (!selectTodo) return;
+    if (!selectPost) return;
     e.preventDefault();
     try {
-      await api.delete(`/api/user/todo/edit/${selectTodo.id}/`, formData);
-      await fetchTodos();
+      await api.delete(`/api/user/post/edit/${selectPost.id}/`, formData);
+      await fetchPosts();
       handleDeleteCloseModal();
     } catch (error) {
       console.log(error);
@@ -206,7 +206,7 @@ function Home() {
   };
 
   useEffect(() => {
-    fetchTodos();
+    fetchPosts();
     fetchUser();
   }, []);
 
@@ -220,15 +220,15 @@ function Home() {
     }
   };
 
-  const fetchTodos = async () => {
+  const fetchPosts = async () => {
     try {
-      const response = await api.get("/api/user/todo/list/");
-      setTodos(response.data);
+      const response = await api.get("/api/user/post/list/");
+      setPosts(response.data);
 
       const likedPostObject = {}
-      response.data.forEach(todo => {
-        if(todo.is_liked){
-          likedPostObject[todo.id]= true;
+      response.data.forEach(post => {
+        if(post.is_liked){
+          likedPostObject[post.id]= true;
         }
       });
       setLikedPost(likedPostObject)
@@ -247,48 +247,48 @@ function Home() {
           onOpenModal={handleOpenModal}
         />
 
-        {/* Todo List Display */}
+        {/* Post List Display */}
         <div className="container mx-auto ">
-          {todos.length === 0 ? (
+          {posts.length === 0 ? (
             <p className="text-center text-gray-500">
               No Needles found. Add one!
             </p>
           ) : (
-            todos.map((todo) => (
-              <div key={todo.id} className=" rounded-lg  transition-shadow">
+            posts.map((post) => (
+              <div key={post.id} className=" rounded-lg  transition-shadow">
                 <div className="container flex justify-center  mx-auto">
-                  <Card key={todo.id} style={{boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)'}} className="mw-full max-w-2xl mx-0 px-0 rounded-lg overflow-hidden mb-[18px]  w-full">
+                  <Card key={post.id} style={{boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)'}} className="mw-full max-w-2xl mx-0 px-0 rounded-lg overflow-hidden mb-[18px]  w-full">
                     <CardHeader className="flex  flex-row items-center  justify-between space-y-0 ">
                       <div className="flex items-center gap-3 pl-5  ">
                         <Avatar className="h-10 w-10  " >
                           <AvatarImage
                             src={
-                              todo.user.image ||
+                              post.user.image ||
                               "/placeholder.svg? height=40&width=40"
                             }
-                            alt={todo.user.username}
+                            alt={post.user.username}
                           />
                           <AvatarFallback>
-                            {todo.user.fullname[0]}
+                            {post.user.fullname[0]}
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex flex-col">
                           <p
                             className="text-sm p-0 font-bold  hover:underline cursor-pointer "
-                            onClick={() => navigate(`profile/${todo.user.id}`)}
+                            onClick={() => navigate(`profile/${post.user.id}`)}
                             
                           >
-                            {todo.user.username}
+                            {post.user.username}
                           </p>
                           <p className="text-xs text-center font-extralight text-muted-foreground">
-                            {todo.created_at &&
-                              formatDistanceToNow(new Date(todo.created_at), {
+                            {post.created_at &&
+                              formatDistanceToNow(new Date(post.created_at), {
                                 addSuffix: true,
                               })}
                           </p>
                         </div>
                       </div>
-                      {user && user.username === todo.user.username && (
+                      {user && user.username === post.user.username && (
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <button className="h-8 w-8">
@@ -300,13 +300,13 @@ function Home() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem
-                              onClick={() => handleEditOpenModal(todo)}
+                              onClick={() => handleEditOpenModal(post)}
                             >
                               <FontAwesomeIcon icon={faEdit} className="mr-2" />
                               Edit
                             </DropdownMenuItem>
                             <DropdownMenuItem
-                              onClick={() => handleDeleteOpenModal(todo)}
+                              onClick={() => handleDeleteOpenModal(post)}
                               className="text-red-600"
                             >
                               <FontAwesomeIcon
@@ -321,14 +321,14 @@ function Home() {
                     </CardHeader>
                     <CardContent className=" mb-0 pb-0 h-auto px-0">
                       <h3 className="text-lg pl-5 font-semibold mt-2">
-                        {todo.title}
+                        {post.title}
                       </h3>
                       <p className="text-sm w-[95%] pl-5 text-muted-foreground whitespace-pre-wrap mt-1 break-words">
-                        {todo.goal}
+                        {post.content}
                       </p>
-                      {todo.images && todo.images.length > 0 &&(
+                      {post.images && post.images.length > 0 &&(
                       <div className="h-auto" >  
-                        {todo.images.map((imageItem , index)=>(
+                        {post.images.map((imageItem , index)=>(
                             <img 
                             key={`image : ${index}`}
                             src={imageItem.image}
@@ -342,9 +342,9 @@ function Home() {
                       
                         
                       )}
-                      {todo.videos && todo.videos.length > 0 &&(
+                      {post.videos && post.videos.length > 0 &&(
                       <div className="h-auto" >
-                        {todo.videos.map((videoItem , index)=>(
+                        {post.videos.map((videoItem , index)=>(
                         <video controls className="mt-2 px-0 w-full rounded-s h-auto">
                           <source key = {`video : ${index}`} src={videoItem.video} type="video/mp4" />
                             Your browser does not support the video tag
@@ -358,15 +358,15 @@ function Home() {
                       )}
                       <div className="pt-2 mt-5  flex justify-end border-t-2  border-slate-300">
                         <div className="flex items-center" >
-                          {todo.like_count > 0 &&<span onClick={()=>navigate(`/liked/${todo.id}/`)} className=" text-center text-s text-slate-600 font-semibold hover:cursor-pointer hover:text-gray-600" >Liked by {todo.like_count}</span> }
-                            <button onClick={()=>handleLike(todo.id)}  className=" text-primary ">
-                              <Heart  className={` size-5 mr-8 ml-1 ${todo.is_liked ? 'text-red-600 fill-red-500':'text-gray-600 fill-transparent' }`  } />
+                          {post.like_count > 0 &&<span onClick={()=>navigate(`/liked/${post.id}/`)} className=" text-center text-s text-slate-600 font-semibold hover:cursor-pointer hover:text-gray-600" >Liked by {post.like_count}</span> }
+                            <button onClick={()=>handleLike(post.id)}  className=" text-primary ">
+                              <Heart  className={` size-5 mr-8 ml-1 ${post.is_liked ? 'text-red-600 fill-red-500':'text-gray-600 fill-transparent' }`  } />
                             </button> 
                             <button
                               variant="ghost"
                               size="sm"
                               className="text-primary"
-                              onClick={() => navigate(`/comment/${todo.id}/`)}
+                              onClick={() => navigate(`/comment/${post.id}/`)}
                             >
                               <MessageCircle className="mr-7 size-5" />
                             </button>

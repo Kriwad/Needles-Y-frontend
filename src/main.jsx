@@ -31,8 +31,8 @@ const router = createBrowserRouter(
     <Route path="logout/" element={<Logout />} /> 
     <Route path="register/" element={<RegisterAndLogout />} />
     <Route path="profile/:userId/" element={<Profile />} /> 
-    <Route path="comment/:todoId/" element={<Comment />} /> 
-    <Route path="liked/:todoId/" element={<Liked />} /> 
+    <Route path="comment/:postId/" element={<Comment />} /> 
+    <Route path="liked/:postId/" element={<Liked />} /> 
     
     
     

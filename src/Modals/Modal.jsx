@@ -66,8 +66,8 @@ import { useState } from "react";
               Content
             </label>
             <textarea
-              name="goal"
-              value={formData.goal}
+              name="content"
+              value={formData.content}
               onChange={handleInputChange}
               rows="4"
               readOnly={readOnly}

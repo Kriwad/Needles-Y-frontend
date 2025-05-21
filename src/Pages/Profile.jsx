@@ -35,11 +35,11 @@ function Profile() {
   });
   
   const [currentUser , setCurrentUser] = useState("")
-  const [todos, setTodos] = useState([]);
-  const [selectedTodo, setSelectedTodo] = useState(null);
+  const [posts, setPosts] = useState([]);
+  const [selectedPost, setSelectedPost] = useState(null);
   const [formData, setFormData] = useState({
     title: "",
-    goal: "",
+    content: "",
     image: null,
     video: null,
   });
@@ -55,8 +55,8 @@ function Profile() {
 
   const handleLike = async (postID)=>{
     try{
-      await api.post(`api/user/todo/like/${postID}/`)
-      await fetchTodos()
+      await api.post(`api/user/post/like/${postID}/`)
+      await fetchPosts()
     }catch(error){
       console.log("error:" , error)
     }
@@ -102,12 +102,12 @@ function Profile() {
     }
   }
 
-  const fetchTodos = async () => {
+  const fetchPosts = async () => {
     try {
-      const response = await api.get(`api/user/profile/todos/${userId}`);
-      setTodos(response.data);
+      const response = await api.get(`api/user/profile/posts/${userId}`);
+      setPosts(response.data);
     } catch (error) {
-      console.error("Error fetching todos:", error);
+      console.error("Error fetching posts:", error);
     }
   };
 
@@ -126,7 +126,7 @@ function Profile() {
     
   };
   // Form submissions
-  const handleCreateTodo = async (e) => {
+  const handleCreatePost = async (e) => {
     e.preventDefault();
     const formDataToSend = new FormData();
     for (const key in formData){
@@ -140,21 +140,21 @@ function Profile() {
     }
 
     try {
-      await api.post(`api/user/todo/`, formDataToSend);
-      await fetchTodos();
+      await api.post(`api/user/post/`, formDataToSend);
+      await fetchPosts();
       setShowCreateModal(false);
-      setFormData({ title: "", goal: "", image: null, video: null });
+      setFormData({ title: "", content: "", image: null, video: null });
     } catch (error) {
-      console.error("Error creating todo:", error);
+      console.error("Error creating post:", error);
     }
   };
 
-  const handleEditTodo = async (e) => {
+  const handleEditPost = async (e) => {
     e.preventDefault();
     const formDataToSend = new FormData();
     
     formDataToSend.append("title" , formData.title)
-    formDataToSend.append("goal" , formData.goal)
+    formDataToSend.append("content" , formData.content)
     if (formData.image){
       formDataToSend.append("image" , formData.image)
 
@@ -163,24 +163,24 @@ function Profile() {
       formDataToSend.append("video" , formData.video)
     }
     try {
-      await api.put(`/api/user/todo/edit/${selectedTodo.id}/`, formDataToSend);
-      await fetchTodos();
+      await api.put(`/api/user/post/edit/${selectedPost.id}/`, formDataToSend);
+      await fetchPosts();
       setShowEditModal(false);
-      setSelectedTodo(null);
+      setSelectedPost(null);
     } catch (error) {
-      console.error("Error updating todo:", error);
+      console.error("Error updating post:", error);
     }
   };
 
-  const handleDeleteTodo = async (e) => {
+  const handleDeletePost = async (e) => {
     e.preventDefault();
     try {
-      await api.delete(`/api/user/todo/edit/${selectedTodo.id}/`);
-      await fetchTodos();
+      await api.delete(`/api/user/post/edit/${selectedPost.id}/`);
+      await fetchPosts();
       setShowDeleteModal(false);
-      setSelectedTodo(null);
+      setSelectedPost(null);
     } catch (error) {
-      console.error("Error deleting todo:", error);
+      console.error("Error deleting post:", error);
     }
   };
 
@@ -200,7 +200,7 @@ function Profile() {
       setProfileUpdated(prev => !prev);
       await fetchUser();
       await fetchCurrentUser();
-      await fetchTodos();
+      await fetchPosts();
       setShowProfileModal(false);
       
     } catch (error) {
@@ -211,17 +211,17 @@ function Profile() {
   useEffect(() => {
     fetchUser();
     fetchCurrentUser();
-    fetchTodos();
+    fetchPosts();
   }, []);
 
   return (
-    <div className="w-1vh h-1vh bg-zinc-200">
+    <div className="w-[100%] h-[100vh] bg-zinc-200">
       <Navbar onOpenModal={() => setShowCreateModal(true)} profileUpdated={profileUpdated} />
       
       {/* Profile Card */}
       <div className="container mx-auto border-b-[20px]">
         <Card  style={{boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)'}} className="w-full  max-w-3xl mx-auto rounded-md">
-          <div className="relative h-48 bg-gradient-to-r from-slate-300 to-slate-300">
+          <div className="relative h-48 bg-slate-300">
             <Avatar
               className="absolute top-10 left-24 transform -translate-x-1/2 translate-y-1/2 w-32 h-32 border-4 border-white"
               onClick={user && user.id === currentUser ? () => navigate("/") : undefined}
@@ -251,23 +251,23 @@ function Profile() {
         </Card>
       </div>
 
-      {/* Todos List */}
+      {/* Posts List */}
       <div className="container mx-auto">
-        {todos.length === 0 ? (
-          <p className="text-center text-gray-500">No todos found.</p>
+        {posts.length === 0 ? (
+          <p className="text-center text-gray-500">No posts found.</p>
         ) : (
-          todos.map(todo => (
-            <Card key={todo.id} style={{boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)'}} className="max-w-3xl mx-auto px-0 mb-[18px] rounded-md">
+          posts.map(post => (
+            <Card key={post.id} style={{boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)'}} className="max-w-3xl mx-auto px-0 mb-[18px] rounded-md">
               <CardHeader className="flex flex-row items-center justify-between">
                 <div className="flex items-center gap-3 pl-5">
                   <Avatar className="h-10 w-10  ">
-                    <AvatarImage src={todo.user.image || "/placeholder.svg"} />
-                    <AvatarFallback>{todo.user.fullname[0]}</AvatarFallback>
+                    <AvatarImage src={post.user.image || "/placeholder.svg"} />
+                    <AvatarFallback>{post.user.fullname[0]}</AvatarFallback>
                   </Avatar>
                   <div  >
-                    <p className="font-semibold">{todo.user.username}</p>
+                    <p className="font-semibold">{post.user.username}</p>
                     <p className="text-xs font-extralight text-gray-500">
-                      {formatDistanceToNow(new Date(todo.created_at), { addSuffix: true })}
+                      {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
                     </p>
                   </div>
                 </div>
@@ -279,8 +279,8 @@ function Profile() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
                       <DropdownMenuItem onClick={() => {
-                        setSelectedTodo(todo);
-                        setFormData({ title: todo.title, goal: todo.goal });
+                        setSelectedPost(post);
+                        setFormData({ title: post.title, content: post.content });
                         setShowEditModal(true);
                       }}>
                         <FontAwesomeIcon icon={faEdit} className="mr-2" />
@@ -288,7 +288,7 @@ function Profile() {
                       </DropdownMenuItem>
                       <DropdownMenuItem 
                         onClick={() => {
-                          setSelectedTodo(todo);
+                          setSelectedPost(post);
                           setShowDeleteModal(true);
                         }}
                         className="text-red-600"
@@ -302,19 +302,19 @@ function Profile() {
               </CardHeader>
 
               <CardContent className=" h-auto px-0 " >
-                <h3 className="text-lg mt-5 pl-5 font-semibold">{todo.title}</h3>
-                <p className="text-gray-700 pl-5 mt-2">{todo.goal}</p>
-                {todo.images && todo.images.length > 0 && (
+                <h3 className="text-lg mt-5 pl-5 font-semibold">{post.title}</h3>
+                <p className="text-gray-700 pl-5 mt-2">{post.content}</p>
+                {post.images && post.images.length > 0 && (
                   <div className="h-auto ">
-                    {todo.images.map((imageItem , index)=>(
+                    {post.images.map((imageItem , index)=>(
                       <img key={`image: ${index}`} src={imageItem.image} alt=""className="mt-2 px-0 w-full h-auto max-h-[600px] rounded-s" />
                     ))}
                   </div>
                   
                 )}
-                {todo.videos && todo.videos.length > 0 && (
+                {post.videos && post.videos.length > 0 && (
                   <div>
-                    {todo.videos.map((videoItem , index)=>(
+                    {post.videos.map((videoItem , index)=>(
                       <video controls className="mt-2 px-0 w-full h-auto max-h-[600px] rounded-s">
                         <source key={`video:${index}`} src={videoItem.video} type="video/mp4" />
                       </video>
@@ -326,15 +326,15 @@ function Profile() {
                 <div className=" pt-2 mt-5 flex justify-end border-t-2  border-slate-300
                  ">
                   <div className="flex items-center" >
-                    {todo.like_count > 0 &&<span onClick={()=>navigate(`/liked/${todo.id}/`)} className="mr-1 text-center text-s text-slate-600 font-semibold hover:cursor-pointer hover:text-gray-400" >Liked by {todo.like_count}</span> }
-                      <button onClick={()=>handleLike(todo.id)}  className="  text-primary ">
-                        <Heart  className={` size-5  mr-8 ml-1 ${todo.is_liked ? 'text-red-600 fill-red-500':'text-gray-600 fill-transparent' }`  } />
+                    {post.like_count > 0 &&<span onClick={()=>navigate(`/liked/${post.id}/`)} className="mr-1 text-center text-s text-slate-600 font-semibold hover:cursor-pointer hover:text-gray-400" >Liked by {post.like_count}</span> }
+                      <button onClick={()=>handleLike(post.id)}  className="  text-primary ">
+                        <Heart  className={` size-5  mr-8 ml-1 ${post.is_liked ? 'text-red-600 fill-red-500':'text-gray-600 fill-transparent' }`  } />
                       </button>
                       <button
                         variant="ghost"
                         size="sm"
                         className="text-primary"
-                        onClick={() => navigate(`/comment/${todo.id}/`)}
+                        onClick={() => navigate(`/comment/${post.id}/`)}
                       >
                         <MessageCircle className="mr-7 size-5" />
                       </button>        
@@ -363,8 +363,8 @@ function Profile() {
       <Modal
         isOpen={showCreateModal}
         isClosed={() => setShowCreateModal(false)}
-        onSubmit={handleCreateTodo}
-        title="Create New Todo"
+        onSubmit={handleCreatePost}
+        title="Create New Post"
         submitText="Create"
         formData={formData}
         handleInputChange={handleFormChange}
@@ -374,8 +374,8 @@ function Profile() {
       <Modal
         isOpen={showEditModal}
         isClosed={() => setShowEditModal(false)}
-        onSubmit={handleEditTodo}
-        title="Edit Todo"
+        onSubmit={handleEditPost}
+        title="Edit Post"
         submitText="Update"
         formData={formData}
         handleInputChange={handleFormChange}
@@ -385,8 +385,8 @@ function Profile() {
       <Modal
         isOpen={showDeleteModal}
         isClosed={() => setShowDeleteModal(false)}
-        onSubmit={handleDeleteTodo}
-        title="Delete Todo"
+        onSubmit={handleDeletePost}
+        title="Delete Post"
         submitText="Delete"
         formData={formData}
         handleInputChange={handleFormChange}

@@ -16,11 +16,11 @@ function comment() {
 
 
 
-    const {todoId} = useParams()
+    const {postId} = useParams()
     const [commentData , setCommentData] = useState([])
     const fetchComment = async ()=>{
         try{
-            const res = await api.get(`api/user/list/todo/comment/${todoId}/`)
+            const res = await api.get(`api/user/list/post/comment/${postId}/`)
             setCommentData(res.data)
             console.log(res.data);
     }

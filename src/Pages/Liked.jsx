@@ -9,13 +9,13 @@ import { Card , CardContent , CardHeader } from '../Components/ui/card'
 import  {Avatar, AvatarImage, AvatarFallback} from '../Components/ui/avatar'
 import { faAngleLeft } from '@fortawesome/free-solid-svg-icons'
 function Liked() {
-  const {todoId} = useParams()
-  console.log("Id is this very op id",todoId)
+  const { postId } = useParams()
+  console.log("Id is this very op id",postId)
   const [users , setUser]= useState([])
   const navigate = useNavigate()
   const fetchLikeUser = async ()=>{
     try{
-    const response =  await api.get(`api/user/todo/like/${todoId}/`)
+    const response =  await api.get(`api/user/post/like/${postId}/`)
     setUser(response.data)
     console.log(response.data)
     
@@ -25,7 +25,7 @@ function Liked() {
   };
   useEffect(() => {
     fetchLikeUser();
-  }, [todoId]);
+  }, [postId]);
   return (
   
   <>
