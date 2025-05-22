@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faEye, faEyeSlash, faSpinner } from "@fortawesome/free-solid-svg-icons"
 import api from "../api"
+import PublicAPi from "../../PublicAPi"
 
 export default function RegisterAndLogout() {
   const [data, setData] = useState({
@@ -28,15 +29,13 @@ export default function RegisterAndLogout() {
     setSuccess("")
     try {
       console.log("Sending data to API:", data)
-      await api.post("/api/user/register/", {
+      await PublicAPi.post("/api/user/register/", {
         username: data.username,
         password: data.password,
         email: data.email,
         first_name: data.firstname,
         middle_name: data.middlename,
         last_name: data.lastname,
-      },{
-        headers: {Authorization : undefined}
       })
 
       setSuccess("Registration successful! Please proceed to login.")
