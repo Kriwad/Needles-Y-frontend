@@ -215,7 +215,7 @@ function Profile() {
   }, []);
 
   return (
-    <div className="w-[100%] h-[100vh] bg-zinc-200">
+    <div className="w-[100%] h-[100%] bg-zinc-200">
       <Navbar onOpenModal={() => setShowCreateModal(true)} profileUpdated={profileUpdated} />
       
       {/* Profile Card */}

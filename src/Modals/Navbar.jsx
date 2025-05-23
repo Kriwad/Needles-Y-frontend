@@ -59,7 +59,7 @@ const Navbar = ({ onOpenModal , profileUpdated }) => {
   };
 
   return (
-    <nav className="mb-0 items-center justify-between bg-black py-4 shadow-md">
+    <nav className=" fixed z-50 mb-0 items-center justify-between bg-black py-4 shadow-md w-full">
       <div className="container mx-auto">
         {/* Desktop View */}
         <div className="hidden sm:flex items-center justify-evenly ">
@@ -69,14 +69,14 @@ const Navbar = ({ onOpenModal , profileUpdated }) => {
             </span>
           </div>
 
-          <div className="flex-grow mx-8 max-w-xl">
+          <div className="flex-grow mx-1 min-w-40 max-w-xl">
             <div className="relative">
               <input
                 type="text"
                 placeholder="Search users..."
                 value={search}
                 onChange={handleSearch}
-                className="w-full px-4 py-2 rounded-full bg-white bg-opacity-20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-white focus:bg-opacity-30 transition duration-300"
+                className="w-full min-w-44 px-4 py-2 rounded-full bg-white bg-opacity-20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-white focus:bg-opacity-30 transition duration-300"
               />
               <button>
                 <FontAwesomeIcon
@@ -87,7 +87,7 @@ const Navbar = ({ onOpenModal , profileUpdated }) => {
             </div>
           </div>
           
-          <div className="flex justify-evenly gap-5 ">
+          <div className="flex justify-end gap-[50px] ">
             { !hideButton &&  (
             
             <button

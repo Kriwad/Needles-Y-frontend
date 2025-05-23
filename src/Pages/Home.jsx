@@ -248,7 +248,7 @@ function Home() {
         />
 
         {/* Post List Display */}
-        <div className="container mx-auto ">
+        <div className="container pt-[60px] mx-auto ">
           {posts.length === 0 ? (
             <p className="text-center text-gray-500">
               No Needles found. Add one!
@@ -268,7 +268,7 @@ function Home() {
                             }
                             alt={post.user.username}
                           />
-                          <AvatarFallback>
+                          <AvatarFallback  onClick={()=> navigate(`/profile/${post.user.id}`)} >
                             {post.user.fullname[0]}
                           </AvatarFallback>
                         </Avatar>
@@ -333,7 +333,7 @@ function Home() {
                             key={`image : ${index}`}
                             src={imageItem.image}
                             onClick={() => handleImageClick(imageItem.image)}
-                            className="mt-2 px-0 w-[900%]  h-auto  max-h-[500px] rounded-s"
+                            className="mt-2 px-0 w-[100%]  h-auto  max-h-[500px] rounded-s"
                             alt=""
                           />
                         ))}
@@ -371,8 +371,6 @@ function Home() {
                               <MessageCircle className="mr-7 size-5" />
                             </button>
                         </div>
-                        
-                        
                       </div>
                     </CardContent>
                   </Card>
