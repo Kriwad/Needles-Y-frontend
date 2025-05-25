@@ -220,7 +220,7 @@ function Profile() {
       
       {/* Profile Card */}
       <div className="container mx-auto border-b-[20px]">
-        <Card  style={{boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)'}} className="w-full  max-w-3xl mx-auto rounded-md">
+        <Card  style={{boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)'}} className="w-full  max-w-lg mx-auto rounded-md">
           <div className="relative h-48 bg-slate-300">
             <Avatar
               className="absolute top-10 left-24 transform -translate-x-1/2 translate-y-1/2 w-32 h-32 border-4 border-white"
@@ -257,7 +257,7 @@ function Profile() {
           <p className="text-center text-gray-500">No posts found.</p>
         ) : (
           posts.map(post => (
-            <Card key={post.id} style={{boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)'}} className="max-w-3xl mx-auto px-0 mb-[18px] rounded-md">
+            <Card key={post.id} style={{boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)'}} className="max-w-lg mx-auto px-0 mb-[18px] rounded-md">
               <CardHeader className="flex flex-row items-center justify-between">
                 <div className="flex items-center gap-3 pl-5">
                   <Avatar className="h-10 w-10  ">
@@ -307,7 +307,7 @@ function Profile() {
                 {post.images && post.images.length > 0 && (
                   <div className="h-auto ">
                     {post.images.map((imageItem , index)=>(
-                      <img key={`image: ${index}`} src={imageItem.image} alt=""className="mt-2 px-0 w-full h-auto max-h-[600px] rounded-s" />
+                      <img key={`image: ${index}`} src={imageItem.image} alt=""className="mt-2 px-0 w-full h-auto max-h-[600px] object-contain rounded-s" />
                     ))}
                   </div>
                   
@@ -315,7 +315,7 @@ function Profile() {
                 {post.videos && post.videos.length > 0 && (
                   <div>
                     {post.videos.map((videoItem , index)=>(
-                      <video controls className="mt-2 px-0 w-full h-auto max-h-[600px] rounded-s">
+                      <video controls className="mt-2 px-0 w-full h-auto max-h-[600px] object-contain rounded-s">
                         <source key={`video:${index}`} src={videoItem.video} type="video/mp4" />
                       </video>
                     ))}

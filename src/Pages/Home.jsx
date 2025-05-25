@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar";
 import { Card, CardContent, CardHeader } from "@/Components/ui/card";
-
-import { Heart, MessageCircle} from "lucide-react";
+import imageCompression from 'browser-image-compression';
+import { FileType, Heart, MessageCircle} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -60,18 +60,69 @@ function Home() {
     }))
   }
 
-  const handleInputChange = (e) => {
+  const handleInputChange = async (e) => {
     const { name, value, type, files } = e.target;
     if (type === "file") {
-      setFormData((prevState) => ({
+      if (name === 'image' && files.length> 0){
+        console.log('Image input detected. Number of files selected:', files.length); 
+        const processedFiles = []
+
+        const targetmaxDimension = 720;
+        const targetPhotoQuality = 0.60;
+        const targetFileSizeMB = 0.75
+
+        for (let i = 0; i < files.length ; i ++){
+          const originalFile = files[i]
+          let currentProcessedFile = originalFile
+
+          try {
+            const option = {
+              maxSizeMB: targetFileSizeMB,
+              maxWidthOrHeight: targetmaxDimension,
+              useWebWorker :true , 
+              fileType:originalFile.type,
+              initialQuality : targetPhotoQuality,
+              alwaysKeepResolution : false,
+            }
+            console.log(`Processing image : ${i+1} original image : ${originalFile.size /1024 /1024}MB`);
+            const compressedResult = await imageCompression(originalFile , option)
+            console.log(`Processed image : ${i+1} , size : ${currentProcessedFile.size / 1024 /1024}MB`)
+            if (compressedResult instanceof Blob){
+              currentProcessedFile = new File([compressedResult] , originalFile.name ,{
+                type : compressedResult.type , 
+                lastModified : originalFile.lastModified,
+              } );
+              console.log(`Compression successfull for image {i+!}. Converted Blob to file`)
+            }else {
+              console.error(`Error Processed file ${i+1}is neither a blob or a file type`)
+              console.log(`- Faiing back to original file.`)
+              currentProcessedFile = originalFile;
+
+            }
+            
+          }catch(error){
+            console.error(`Image processing (compression) failed for file ${i+1} (${originalFile.name}):`, error);
+            console.log(`  - Falling back to original file.`);
+            currentProcessedFile = originalFile;
+          }
+          processedFiles.push(currentProcessedFile)
+        }
+        console.log(`All files processed. Number of files in processedFiles: ${processedFiles.length}`);
+        
+        setFormData((prevState) => ({
         ...prevState,
-        [name]: files,
-      }));
-    } else {
+        [name]: processedFiles,
+        }));
+      }else if (name ==='video' && files.length> 0) {
       setFormData((prevState) => ({
         ...prevState,
         [name]: value,
-      }));
+      }));}
+    } 
+    else{
+      setFormData((prevState)=>({
+        ...prevState , [name]: value
+      }))
     }
   };
 
@@ -116,14 +167,23 @@ function Home() {
     e.preventDefault();
     const formDataToSend = new FormData();
     for (const key in formData) {
-      if (formData[key] instanceof FileList) {
+      if (Array.isArray(formData[key]) && formData[key].every(item => item instanceof File)){
+        for (let i = 0 ; i < formData[key].length ; i ++){
+          formDataToSend.append(`${key}` , formData[key][i]);
+        }
+      }
+      else if (formData[key] instanceof FileList) {
         for (let i = 0; i < formData[key].length; i++) {
           formDataToSend.append(`${key}`, formData[key][i]);
         }
-      } else if (formData[key]) {
+      } else if(formData[key]) {
         formDataToSend.append(key, formData[key]);
       }
+      console.log("FormData being sent:");
+      for (let pair of formDataToSend.entries()) {
+        console.log(pair[0] + ', ' + pair[1]);}
     }
+
   
     try {
       await api.post("/api/user/post/", formDataToSend);
@@ -133,7 +193,7 @@ function Home() {
      
     } catch (error) {
       console.log("error:", error);
-      handleCloseModel(); // Close the modal even if there's an error
+      // handleCloseModel(); // Close the modal even if there's an error
     }
   };
 
@@ -257,7 +317,7 @@ function Home() {
             posts.map((post) => (
               <div key={post.id} className=" rounded-lg  transition-shadow">
                 <div className="container flex justify-center  mx-auto">
-                  <Card key={post.id} style={{boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)'}} className="mw-full max-w-2xl mx-0 px-0 rounded-lg overflow-hidden mb-[18px]  w-full">
+                  <Card key={post.id} style={{boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)'}} className="mw-full max-w-lg mx-0 px-0 rounded-lg overflow-hidden mb-[18px]  w-full">
                     <CardHeader className="flex  flex-row items-center  justify-between space-y-0 ">
                       <div className="flex items-center gap-3 pl-5  ">
                         <Avatar className="h-10 w-10  " >
@@ -333,7 +393,7 @@ function Home() {
                             key={`image : ${index}`}
                             src={imageItem.image}
                             onClick={() => handleImageClick(imageItem.image)}
-                            className="mt-2 px-0 w-[100%]  h-auto  max-h-[500px] rounded-s"
+                            className="mt-2 object-contain px-0 w-[100%]  h-auto  max-h-[500px] rounded-s"
                             alt=""
                           />
                         ))}
@@ -345,7 +405,7 @@ function Home() {
                       {post.videos && post.videos.length > 0 &&(
                       <div className="h-auto" >
                         {post.videos.map((videoItem , index)=>(
-                        <video controls className="mt-2 px-0 w-full rounded-s h-auto">
+                        <video controls className="mt-2 px-0 w-full object-contain rounded-s h-auto max-h-[500px] ">
                           <source key = {`video : ${index}`} src={videoItem.video} type="video/mp4" />
                             Your browser does not support the video tag
                         </video>
