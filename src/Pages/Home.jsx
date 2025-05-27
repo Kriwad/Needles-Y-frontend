@@ -66,23 +66,37 @@ function Home() {
       if (name === 'image' && files.length> 0){
         console.log('Image input detected. Number of files selected:', files.length); 
         const processedFiles = []
-
-        const targetmaxDimension = 720;
-        const targetPhotoQuality = 0.60;
-        const targetFileSizeMB = 0.75
+        const MODERATE_DIMENSION_CAP = 1920; 
 
         for (let i = 0; i < files.length ; i ++){
           const originalFile = files[i]
           let currentProcessedFile = originalFile
 
           try {
+            const originalFileSizeMB= originalFile.size/ 1024 /1024;
+            let targetSizeMB;
+            let compressionQuality;
+            let currentMaxWidthOrHeight = undefined;
+            if(originalFileSizeMB >= 5 ){
+              targetSizeMB = originalFileSizeMB*0.7;
+              compressionQuality = 0.75;
+              currentMaxWidthOrHeight = MODERATE_DIMENSION_CAP;
+            } else if (originalFileSizeMB > 2 && originalFileSizeMB<4){
+              targetSizeMB = originalFileSizeMB*0.75;
+              compressionQuality = 0.80;
+              currentMaxWidthOrHeight = undefined
+            }else{
+              targetSizeMB  = originalFileSizeMB*0.90 ;
+              compressionQuality = 1.0;
+              currentMaxWidthOrHeight = undefined
+            }
             const option = {
-              maxSizeMB: targetFileSizeMB,
-              maxWidthOrHeight: targetmaxDimension,
+              maxSizeMB: targetSizeMB,
+              maxWidthOrHeight: currentMaxWidthOrHeight,
               useWebWorker :true , 
               fileType:originalFile.type,
-              initialQuality : targetPhotoQuality,
-              alwaysKeepResolution : false,
+              quality : compressionQuality,
+              alwaysKeepResolution : false
             }
             console.log(`Processing image : ${i+1} original image : ${originalFile.size /1024 /1024}MB`);
             const compressedResult = await imageCompression(originalFile , option)

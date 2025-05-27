@@ -302,16 +302,28 @@ function Profile() {
               </CardHeader>
 
               <CardContent className=" h-auto px-0 " >
-                <h3 className="text-lg mt-5 pl-5 font-semibold">{post.title}</h3>
-                <p className="text-gray-700 pl-5 mt-2">{post.content}</p>
-                {post.images && post.images.length > 0 && (
-                  <div className="h-auto ">
-                    {post.images.map((imageItem , index)=>(
-                      <img key={`image: ${index}`} src={imageItem.image} alt=""className="mt-2 px-0 w-full h-auto max-h-[600px] object-contain rounded-s" />
-                    ))}
-                  </div>
-                  
-                )}
+                <h3 className="text-lg pl-5 font-semibold mt-2">
+                        {post.title}
+                      </h3>
+                      <p className="text-sm w-[95%] pl-5 text-muted-foreground whitespace-pre-wrap mt-1 break-words">
+                        {post.content}
+                      </p>
+                      {post.images && post.images.length > 0 &&(
+                      <div className="h-auto" >  
+                        {post.images.map((imageItem , index)=>(
+                            <img 
+                            key={`image : ${index}`}
+                            src={imageItem.image}
+                            onClick={() => handleImageClick(imageItem.image)}
+                            className="mt-2 object-contain px-0 w-[100%]  h-auto  max-h-[500px] rounded-s"
+                            alt=""
+                          />
+                        ))}
+                         
+                      </div>
+                      
+                        
+                      )}
                 {post.videos && post.videos.length > 0 && (
                   <div>
                     {post.videos.map((videoItem , index)=>(
