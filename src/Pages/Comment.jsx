@@ -28,7 +28,7 @@ function Comment() {
   const { postId } = useParams();
   const [currentUser , setCurrentUser] = useState("");
   const [postData, setPostData] = useState([]);
-  const [comment , setComment] = useState([]);
+  const [comments , setComment] = useState([]);
   const [form , setForm] = useState({
     commentcontent :"",
     post_id : ""
@@ -244,16 +244,26 @@ function Comment() {
                 </div>
               </div>
             </CardContent>
-                {/* <div className="bg-red-400 flex h-[auto] mt-[30px] px-5 pt-5" >
-                    <div className="bg-green-400 mb-5 w-[100%] mx-[10px]" >
-                        wkdw
-                    </div>
-                        
-                    <Heart>
-                    </Heart>
+                  
+            <div>
+            {comments === 0 ? (
+              <p>
+                Be the first one to comment
+              </p>
+            ) : (
+              comments.map((comment)=>(
+                <div key = {comment.id} >
+                  {comment.commentcontent}
+                </div>
 
-                </div> */}
 
+
+              ))
+            ) }
+              
+
+            </div>
+              
           </Card>
 
           <div className="mt-5 relative">
