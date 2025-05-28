@@ -38,8 +38,8 @@ function Home() {
   const [formData, setFormData] = useState({
     title: "",
     content: "",
-    image: null,
-    video: null,
+    images: [],
+    videos:[],
   });
   const [imageModalOpen, setImageModalOpen] = useState(false);
   const [selectedImage, setSelectedimage] = useState(null);
@@ -63,7 +63,7 @@ function Home() {
   const handleInputChange = async (e) => {
     const { name, value, type, files } = e.target;
     if (type === "file") {
-      if (name === 'image' && files.length> 0){
+      if (name === 'images' && files.length> 0){
         console.log('Image input detected. Number of files selected:', files.length); 
         const processedFiles = []
         const MODERATE_DIMENSION_CAP = 1920; 
@@ -127,10 +127,10 @@ function Home() {
         ...prevState,
         [name]: processedFiles,
         }));
-      }else if (name ==='video' && files.length> 0) {
+      }else if (name ==='videos' && files.length> 0) {
       setFormData((prevState) => ({
         ...prevState,
-        [name]: value,
+        [name]: Array.from(files),
       }));}
     } 
     else{
@@ -144,8 +144,8 @@ function Home() {
     setFormData({
       title: "",
       content: "",
-      image: null,
-      video: null,
+      images: [],
+      videos: [],
     });
     setSelectPost(null);
   };
@@ -183,22 +183,13 @@ function Home() {
     for (const key in formData) {
       if (Array.isArray(formData[key]) && formData[key].every(item => item instanceof File)){
         for (let i = 0 ; i < formData[key].length ; i ++){
-          formDataToSend.append(`${key}` , formData[key][i]);
-        }
-      }
-      else if (formData[key] instanceof FileList) {
-        for (let i = 0; i < formData[key].length; i++) {
           formDataToSend.append(`${key}`, formData[key][i]);
         }
-      } else if(formData[key]) {
+      }
+      else if(formData[key]) {
         formDataToSend.append(key, formData[key]);
       }
-      console.log("FormData being sent:");
-      for (let pair of formDataToSend.entries()) {
-        console.log(pair[0] + ', ' + pair[1]);}
     }
-
-  
     try {
       await api.post("/api/user/post/", formDataToSend);
       await fetchPosts(); // Refresh the posts list

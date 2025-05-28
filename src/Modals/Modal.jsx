@@ -83,7 +83,7 @@ import { useState } from "react";
             </label>
             <input
             type = "file"
-              name="image"
+              name="images"
               onChange={handleInputChange}
               accept="image/"
               multiple
@@ -98,7 +98,7 @@ import { useState } from "react";
             </label>
             <input
             type = "file"
-              name="video"
+              name="videos"
               onChange={handleInputChange}
               multiple
               accept="video/*"
