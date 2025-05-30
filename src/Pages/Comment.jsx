@@ -116,6 +116,7 @@ function Comment() {
   useEffect(() => {
     fetchPostData();
     fetchCurrentUser();
+    fetchComment();
   }, []);
   return (
     <div className="  w-full h-[100%] bg-zinc-200">

@@ -38,9 +38,10 @@ function Home() {
   const [formData, setFormData] = useState({
     title: "",
     content: "",
-    images: [],
-    videos:[],
+    image: [],
+    video:[],
   });
+  const [isProcessingFiles, setIsProcessingFiles] = useState(false);
   const [imageModalOpen, setImageModalOpen] = useState(false);
   const [selectedImage, setSelectedimage] = useState(null);
   const [posts, setPosts] = useState([]);
@@ -62,8 +63,9 @@ function Home() {
 
   const handleInputChange = async (e) => {
     const { name, value, type, files } = e.target;
-    if (type === "file") {
-      if (name === 'images' && files.length> 0){
+    if (type === "file") { 
+      if (name === 'image' && files.length> 0){
+        setIsProcessingFiles(true)
         console.log('Image input detected. Number of files selected:', files.length); 
         const processedFiles = []
         const MODERATE_DIMENSION_CAP = 1920; 
@@ -118,16 +120,18 @@ function Home() {
             console.error(`Image processing (compression) failed for file ${i+1} (${originalFile.name}):`, error);
             console.log(`  - Falling back to original file.`);
             currentProcessedFile = originalFile;
+          }finally{
+            setIsProcessingFiles(false)
           }
           processedFiles.push(currentProcessedFile)
         }
         console.log(`All files processed. Number of files in processedFiles: ${processedFiles.length}`);
-        
+        console.log(processedFiles)
         setFormData((prevState) => ({
         ...prevState,
         [name]: processedFiles,
         }));
-      }else if (name ==='videos' && files.length> 0) {
+      }else if (name ==='video' && files.length> 0) {
       setFormData((prevState) => ({
         ...prevState,
         [name]: Array.from(files),
@@ -144,8 +148,8 @@ function Home() {
     setFormData({
       title: "",
       content: "",
-      images: [],
-      videos: [],
+      image: [],
+      video: [],
     });
     setSelectPost(null);
   };
@@ -179,11 +183,15 @@ function Home() {
   // handles creating a post
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isProcessingFiles){
+      console.log("Files are being processed");
+      return
+    }
     const formDataToSend = new FormData();
     for (const key in formData) {
       if (Array.isArray(formData[key]) && formData[key].every(item => item instanceof File)){
         for (let i = 0 ; i < formData[key].length ; i ++){
-          formDataToSend.append(`${key}`, formData[key][i]);
+          formDataToSend.append(key, formData[key][i]);
         }
       }
       else if(formData[key]) {
@@ -191,6 +199,10 @@ function Home() {
       }
     }
     try {
+      console.log("Sending FormData:", formDataToSend); // For debugging
+      for (let pair of formDataToSend.entries()) { // For debugging to see contents
+      console.log(pair[0]+ ', ' + pair[1]);  }
+      
       await api.post("/api/user/post/", formDataToSend);
       await fetchPosts(); // Refresh the posts list
       handleCloseModel(); // Close the modal
@@ -225,11 +237,11 @@ function Home() {
 
     formDataToSend.append("title", formData.title);
     formDataToSend.append("content", formData.content);
-    if (formData.image) {
-      formDataToSend.append("image", formData.image);
+    if (formData.images) {
+      formDataToSend.append("image", formData.images);
     }
-    if (formData.video) {
-      formDataToSend.append("video", formData.video);
+    if (formData.videos) {
+      formDataToSend.append("video", formData.videos);
     }
 
     try {
@@ -476,6 +488,7 @@ function Home() {
           formData={formData}
           handleInputChange={handleInputChange}
           modalType="submit"
+          isProcessingFiles={isProcessingFiles}
         />
 
         <Modal

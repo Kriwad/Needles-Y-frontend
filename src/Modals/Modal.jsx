@@ -10,9 +10,11 @@ import { useState } from "react";
   formData, 
   handleInputChange ,
   readOnly = false,
-  modalType
+  modalType,
+  isProcessingFiles
 }) => {
   const [isSubmitting , setIsSubmitting] = useState(false)
+  const disableSubmitButton = isProcessingFiles;
   if (!isOpen) return null;
   const handleSubmit= async (e)=>{
     e.preventDefault();
@@ -83,7 +85,7 @@ import { useState } from "react";
             </label>
             <input
             type = "file"
-              name="images"
+              name="image"
               onChange={handleInputChange}
               accept="image/"
               multiple
@@ -98,7 +100,7 @@ import { useState } from "react";
             </label>
             <input
             type = "file"
-              name="videos"
+              name="video"
               onChange={handleInputChange}
               multiple
               accept="video/*"
@@ -114,7 +116,7 @@ import { useState } from "react";
           <div className="flex justify-end">
             <button
               type="submit"
-              
+              disabled = {disableSubmitButton}
               className={modalType === "delete" ? "bg-red-600 rounded-md text-white px-4 py-2 hover:bg-red-900" : "bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"}
             >
               {submitText}
