@@ -117,7 +117,7 @@ import { useState } from "react";
             <button
               type="submit"
               disabled = {disableSubmitButton}
-              className={modalType === "delete" ? "bg-red-600 rounded-md text-white px-4 py-2 hover:bg-red-900" : "bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"}
+              className={disableSubmitButton ? 'bg-gray-400 cursor-not-allowed px-4 py-2 rounded-md'  : modalType === "delete" ? "bg-red-600 rounded-md text-white px-4 py-2 hover:bg-red-900" : "bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"}
             >
               {submitText}
             </button>
