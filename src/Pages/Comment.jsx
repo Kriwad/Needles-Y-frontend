@@ -95,6 +95,14 @@ function Comment() {
       console.log(error);
     }
   };
+  const handleComentLike = async (commentID)=>{
+    try{
+      await api.post(`/api/user/comment/like/${commentID}/`);
+      await fetchComment()
+    }catch(error){
+      console.log(error)
+    }
+  }
   const userid = JSON.parse(localStorage.getItem("user_id"));
   console.log(userid);
 
@@ -121,7 +129,7 @@ function Comment() {
         <div className="w-full max-w-2xl">
           <Card
             style={{ boxShadow: "0 2px 8px rgba(0, 0, 0, 0.3)" }}
-            className="mw-full max-w-2xl mx-0 px-0 rounded-lg overflow-hidden w-full"
+            className="mw-full max-w-lg mx-0 px-0 rounded-lg overflow-hidden w-full"
           >
             <CardHeader className="flex  flex-row items-center  justify-between mx-5 space-y-4 ">
               {/* Left Side: Avatar + Username + Date */}
@@ -228,7 +236,9 @@ function Comment() {
                       }`}
                     ></Heart>
                   </button>
-
+                  {postData.comment_count > 0 &&
+                    <span className=" text-center text-s text-slate-600 font-semibold mr-[5px] hover:cursor-pointer hover:text-gray-600" >{postData.comment_count}</span>
+                  }
                   <button
                     variant="ghost"
                     size="sm"
@@ -237,6 +247,7 @@ function Comment() {
                   >
                     <MessageCircle className="mr-7 size-5" />
                   </button>
+                 
                 </div>
               </div>
             </CardContent>
@@ -247,8 +258,8 @@ function Comment() {
               ) : (
                 comments.map((comment) => (
                   <div key = {comment.id} className="mb-[10px] mt-[30px] flex-col">
-                    <Card className="p-0 border-none flex items-start mt-[10px] rounded-md">
-                      <Avatar className="mr-[10px] ml-[10px]">
+                    <Card className="p-0 border-none flex items-center mt-[10px] rounded-md">
+                      <Avatar className="mr-[10px] ml-[20px] ">
                         <AvatarImage
                           onClick={() =>
                             navigate(`/profile/${comment.user.id}`)
@@ -278,9 +289,15 @@ function Comment() {
                           </div>
                         </div>
                       </div>
+                      {console.log(comment)}
                       <div className="flex items-center gap-2">
-                        <span>143k</span>
-                        <Heart className="mr-[15px] size-4 "></Heart>
+                        <span className=" text-center text-xs text-slate-600 font-semibold hover:cursor-pointer hover:text-gray-600" >{comment.comment_like_count}</span>
+                        <button onClick={()=>handleComentLike(comment.id)} >
+                            <Heart  className={`mr-[15px] size-4 ${
+                              comment.is_comment_liked ? "text-red-600 fill-red-500 "
+                          : `text-gray-600 fill-transparent `}`}></Heart>
+                        </button>
+                        
                       </div>
                     </Card>
                     <div className="ml-[60px] mt-[5px] font-bold text-zinc-500 ">
@@ -295,7 +312,7 @@ function Comment() {
             </div>
           </Card>
 
-          <Card className="mt-[30px] mb-[30px] flex items-center rounded-md">
+          <Card className="mt-[30px] mb-[30px] max-w-lg flex items-center rounded-md">
             <Avatar className='mr-[10px] ml-[10px]' >
               <AvatarImage src={currentUser?.image} />
               <AvatarFallback>

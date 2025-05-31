@@ -34,7 +34,7 @@ function Home() {
   const [deleteModal, setDeleteModal] = useState(false);
   const [selectPost, setSelectPost] = useState(null);
   const [search, setSearch] = useState("");
-  const [likedPost , setLikedPost] = useState({})
+ 
   const [formData, setFormData] = useState({
     title: "",
     content: "",
@@ -54,11 +54,7 @@ function Home() {
     }catch(error){
       console.log("error:",error)
     }
-    
-    setLikedPost((prev)=>({
-      ...prev,
-      [postID]: !prev[postID] 
-    }))
+  
   }
 
   const handleInputChange = async (e) => {
@@ -113,18 +109,16 @@ function Home() {
               console.error(`Error Processed file ${i+1}is neither a blob or a file type`)
               console.log(`- Faiing back to original file.`)
               currentProcessedFile = originalFile;
-
             }
             
           }catch(error){
             console.error(`Image processing (compression) failed for file ${i+1} (${originalFile.name}):`, error);
             console.log(`  - Falling back to original file.`);
             currentProcessedFile = originalFile;
-          }finally{
-            setIsProcessingFiles(false)
           }
           processedFiles.push(currentProcessedFile)
         }
+        setIsProcessingFiles(false)
         console.log(`All files processed. Number of files in processedFiles: ${processedFiles.length}`);
         console.log(processedFiles)
         setFormData((prevState) => ({
@@ -274,7 +268,7 @@ function Home() {
     if (!selectPost) return;
     e.preventDefault();
     try {
-      await api.delete(`/api/user/post/edit/${selectPost.id}/`, formData);
+      await api.delete(`/api/user/post/edit/${selectPost.id}/`);
       await fetchPosts();
       handleDeleteCloseModal();
     } catch (error) {
@@ -302,15 +296,7 @@ function Home() {
       const response = await api.get("/api/user/post/list/");
       setPosts(response.data);
 
-      const likedPostObject = {}
-      response.data.forEach(post => {
-        if(post.is_liked){
-          likedPostObject[post.id]= true;
-        }
-      });
-      setLikedPost(likedPostObject)
-
-      console.log(response.data);
+      
     } catch (error) {
       console.log("Problem fetching your data:", error);
     }
@@ -435,10 +421,12 @@ function Home() {
                       )}
                       <div className="pt-2 mt-5  flex justify-end border-t-2  border-slate-300">
                         <div className="flex items-center" >
+                      
                           {post.like_count > 0 &&<span onClick={()=>navigate(`/liked/${post.id}/`)} className=" text-center text-s text-slate-600 font-semibold hover:cursor-pointer hover:text-gray-600" >Liked by {post.like_count}</span> }
                             <button onClick={()=>handleLike(post.id)}  className=" text-primary ">
                               <Heart  className={` size-5 mr-8 ml-1 ${post.is_liked ? 'text-red-600 fill-red-500':'text-gray-600 fill-transparent' }`  } />
                             </button> 
+                            {post.comment_count > 0 && <span className=" text-center text-s text-slate-600 font-semibold mr-[5px] hover:cursor-pointer hover:text-gray-600"> {post.comment_count}</span>}
                             <button
                               variant="ghost"
                               size="sm"
