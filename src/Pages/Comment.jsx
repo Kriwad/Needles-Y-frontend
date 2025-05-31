@@ -185,11 +185,11 @@ function Comment() {
               </div>
               {/* Right Side: Dropdown (if user is the owner) */}
             </CardHeader>
-            <CardContent className="mb-0 pb-0 h-auto px-0">
+            <CardContent className="pb-0 h-auto px-0">
               {/* Content Section: Title, content, Images */}
 
               {postData.title && (
-                <h1 className="text-lg pl-5 font-semibold mt-2">
+                <h1 className="text-[15px] mt-[10px] mb-[10px] text-black  pl-5  ">
                   {postData.title}
                 </h1>
               )}

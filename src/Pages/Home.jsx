@@ -382,8 +382,8 @@ function Home() {
                         </DropdownMenu>
                       )}
                     </CardHeader>
-                    <CardContent className=" mb-0 pb-0 h-auto px-0">
-                      <h3 className="text-lg pl-5 font-semibold mt-2">
+                    <CardContent className="   pb-0 h-auto px-0">
+                      <h3 className="text-[15px] mt-[10px] mb-[10px] text-black  pl-5  ">
                         {post.title}
                       </h3>
                       <p className="text-sm w-[95%] pl-5 text-muted-foreground whitespace-pre-wrap mt-1 break-words">
@@ -396,7 +396,7 @@ function Home() {
                             key={`image : ${index}`}
                             src={imageItem.image}
                             onClick={() => handleImageClick(imageItem.image)}
-                            className="mt-2 object-contain px-0 w-[100%]  h-auto  max-h-[500px] rounded-s"
+                            className="mt-2 object-contain px-0 w-[100%]  h-auto  max-h-[500px]"
                             alt=""
                           />
                         ))}

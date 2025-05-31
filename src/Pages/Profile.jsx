@@ -1,10 +1,13 @@
-
-
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEllipsisV, faEdit, faTrash, faPencil } from "@fortawesome/free-solid-svg-icons";
+import {
+  faEllipsisV,
+  faEdit,
+  faTrash,
+  faPencil,
+} from "@fortawesome/free-solid-svg-icons";
 import { Heart, MessageCircle } from "lucide-react";
 
 import Navbar from "../Modals/Navbar";
@@ -24,7 +27,6 @@ import {
 function Profile() {
   const { userId } = useParams();
   const navigate = useNavigate();
- 
 
   // States
   const [user, setUser] = useState({
@@ -33,8 +35,8 @@ function Profile() {
     image: null,
     bio: "",
   });
-  
-  const [currentUser , setCurrentUser] = useState("")
+
+  const [currentUser, setCurrentUser] = useState("");
   const [posts, setPosts] = useState([]);
   const [selectedPost, setSelectedPost] = useState(null);
   const [formData, setFormData] = useState({
@@ -43,46 +45,43 @@ function Profile() {
     image: null,
     video: null,
   });
-  const [likedPost , setIsLikedPost] = useState({})
-
+  const [likedPost, setIsLikedPost] = useState({});
 
   // Modal states
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
-  const [profileUpdated , setProfileUpdated] = useState(false)
+  const [profileUpdated, setProfileUpdated] = useState(false);
 
-  const handleLike = async (postID)=>{
-    try{
-      await api.post(`api/user/post/like/${postID}/`)
-      await fetchPosts()
-    }catch(error){
-      console.log("error:" , error)
+  const handleLike = async (postID) => {
+    try {
+      await api.post(`api/user/post/like/${postID}/`);
+      await fetchPosts();
+    } catch (error) {
+      console.log("error:", error);
     }
-    setIsLikedPost((prev)=> ({
+    setIsLikedPost((prev) => ({
       ...prev,
-      [postID] : !prev[postID] 
-    }))
-  }
+      [postID]: !prev[postID],
+    }));
+  };
 
   // Input handlers
   const handleFormChange = (e) => {
     const { name, value, type, files } = e.target;
-    if (type === "file"){
-      setFormData((prev)=>({
-        ...prev , [name] : files[0]
-      }))
-    }else{
-      setFormData((prev)=>({
-        ...prev , [name]: value,
-      }))
+    if (type === "file") {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: files[0],
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
     }
   };
-
-  
-
- 
 
   // API calls
   const fetchUser = async () => {
@@ -93,14 +92,14 @@ function Profile() {
       console.error("Error fetching user:", error);
     }
   };
-  const fetchCurrentUser = async ()=>{
+  const fetchCurrentUser = async () => {
     try {
-      const response = await api.get('api/user/current/');
-      setCurrentUser(response.data.id)
-    }catch(error){
-      console.log("error" , error)
+      const response = await api.get("api/user/current/");
+      setCurrentUser(response.data.id);
+    } catch (error) {
+      console.log("error", error);
     }
-  }
+  };
 
   const fetchPosts = async () => {
     try {
@@ -113,29 +112,30 @@ function Profile() {
 
   const handleProfileChange = (e) => {
     const { name, value, type, files } = e.target;
-   
-    if (type === "file"){
-      setUser((prev)=>({
-        ...prev , [name] : files[0]
-      }))
-    }else{
-      setUser((prev)=>({
-        ...prev , [name]: value,
-      }))
+
+    if (type === "file") {
+      setUser((prev) => ({
+        ...prev,
+        [name]: files[0],
+      }));
+    } else {
+      setUser((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
     }
-    
   };
   // Form submissions
   const handleCreatePost = async (e) => {
     e.preventDefault();
     const formDataToSend = new FormData();
-    for (const key in formData){
-      if (formData[key] instanceof FileList){
-        for (let i = 0 ; i < formData[key].length ; i++){
-          formDataToSend.append(`${key}`,formData[key][i])
+    for (const key in formData) {
+      if (formData[key] instanceof FileList) {
+        for (let i = 0; i < formData[key].length; i++) {
+          formDataToSend.append(`${key}`, formData[key][i]);
         }
-      }else if (formData[key]) {
-        formDataToSend.append(key , formData[key])
+      } else if (formData[key]) {
+        formDataToSend.append(key, formData[key]);
       }
     }
 
@@ -152,15 +152,14 @@ function Profile() {
   const handleEditPost = async (e) => {
     e.preventDefault();
     const formDataToSend = new FormData();
-    
-    formDataToSend.append("title" , formData.title)
-    formDataToSend.append("content" , formData.content)
-    if (formData.image){
-      formDataToSend.append("image" , formData.image)
 
+    formDataToSend.append("title", formData.title);
+    formDataToSend.append("content", formData.content);
+    if (formData.image) {
+      formDataToSend.append("image", formData.image);
     }
-    if (formData.video){
-      formDataToSend.append("video" , formData.video)
+    if (formData.video) {
+      formDataToSend.append("video", formData.video);
     }
     try {
       await api.put(`/api/user/post/edit/${selectedPost.id}/`, formDataToSend);
@@ -187,22 +186,20 @@ function Profile() {
   const handleProfileEdit = async (e) => {
     e.preventDefault();
     const formDataToSend = new FormData();
-    formDataToSend.append("fullname" , user.fullname)
-    formDataToSend.append("username" , user.username)
-    formDataToSend.append("bio" , user.bio)
-    if (user.image instanceof File){
-      formDataToSend.append("image" , user.image)
-
+    formDataToSend.append("fullname", user.fullname);
+    formDataToSend.append("username", user.username);
+    formDataToSend.append("bio", user.bio);
+    if (user.image instanceof File) {
+      formDataToSend.append("image", user.image);
     }
 
     try {
-      await api.patch(`api/user/profile/${userId}/`, formDataToSend)
-      setProfileUpdated(prev => !prev);
+      await api.patch(`api/user/profile/${userId}/`, formDataToSend);
+      setProfileUpdated((prev) => !prev);
       await fetchUser();
       await fetchCurrentUser();
       await fetchPosts();
       setShowProfileModal(false);
-      
     } catch (error) {
       console.error("Error updating profile:", error);
     }
@@ -216,21 +213,37 @@ function Profile() {
 
   return (
     <div className="w-[100%] h-[100%] bg-zinc-200">
-      <Navbar onOpenModal={() => setShowCreateModal(true)} profileUpdated={profileUpdated} />
-      
+      <Navbar
+        onOpenModal={() => setShowCreateModal(true)}
+        profileUpdated={profileUpdated}
+      />
+
       {/* Profile Card */}
       <div className="container mx-auto border-b-[20px]">
-        <Card  style={{boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)'}} className="w-full  max-w-lg mx-auto rounded-md">
+        <Card
+          style={{ boxShadow: "0 2px 8px rgba(0, 0, 0, 0.3)" }}
+          className="w-full  max-w-lg mx-auto rounded-md"
+        >
           <div className="relative h-48 bg-slate-300">
             <Avatar
               className="absolute top-10 left-24 transform -translate-x-1/2 translate-y-1/2 w-32 h-32 border-4 border-white"
-              onClick={user && user.id === currentUser ? () => navigate("/") : undefined}
+              onClick={
+                user && user.id === currentUser
+                  ? () => navigate("/")
+                  : undefined
+              }
             >
-              <AvatarImage className=" h- " src={user?.image || "/placeholder.svg"} alt={user?.fullname} />
-              <AvatarFallback>{user?.fullname?.[0]?.toUpperCase()}</AvatarFallback>
+              <AvatarImage
+                className=" h- "
+                src={user?.image || "/placeholder.svg"}
+                alt={user?.fullname}
+              />
+              <AvatarFallback>
+                {user?.fullname?.[0]?.toUpperCase()}
+              </AvatarFallback>
             </Avatar>
           </div>
-          
+
           <CardContent className="pt-20 px-8">
             <div className="flex justify-between items-center mb-4">
               <div>
@@ -256,37 +269,48 @@ function Profile() {
         {posts.length === 0 ? (
           <p className="text-center text-gray-500">No posts found.</p>
         ) : (
-          posts.map(post => (
-            <Card key={post.id} style={{boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)'}} className="max-w-lg mx-auto px-0 mb-[18px] rounded-md">
+          posts.map((post) => (
+            <Card
+              key={post.id}
+              style={{ boxShadow: "0 2px 8px rgba(0, 0, 0, 0.3)" }}
+              className="max-w-lg mx-auto px-0 mb-[18px] rounded-md"
+            >
               <CardHeader className="flex flex-row items-center justify-between">
                 <div className="flex items-center gap-3 pl-5">
                   <Avatar className="h-10 w-10  ">
                     <AvatarImage src={post.user.image || "/placeholder.svg"} />
                     <AvatarFallback>{post.user.fullname[0]}</AvatarFallback>
                   </Avatar>
-                  <div  >
+                  <div>
                     <p className="font-semibold">{post.user.username}</p>
                     <p className="text-xs font-extralight text-gray-500">
-                      {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
+                      {formatDistanceToNow(new Date(post.created_at), {
+                        addSuffix: true,
+                      })}
                     </p>
                   </div>
                 </div>
 
                 {user && currentUser === user.id && (
-                  <DropdownMenu  >
+                  <DropdownMenu>
                     <DropdownMenuTrigger>
                       <FontAwesomeIcon className="pr-5" icon={faEllipsisV} />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
-                      <DropdownMenuItem onClick={() => {
-                        setSelectedPost(post);
-                        setFormData({ title: post.title, content: post.content });
-                        setShowEditModal(true);
-                      }}>
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setSelectedPost(post);
+                          setFormData({
+                            title: post.title,
+                            content: post.content,
+                          });
+                          setShowEditModal(true);
+                        }}
+                      >
                         <FontAwesomeIcon icon={faEdit} className="mr-2" />
                         Edit
                       </DropdownMenuItem>
-                      <DropdownMenuItem 
+                      <DropdownMenuItem
                         onClick={() => {
                           setSelectedPost(post);
                           setShowDeleteModal(true);
@@ -301,59 +325,81 @@ function Profile() {
                 )}
               </CardHeader>
 
-              <CardContent className=" h-auto px-0 " >
-                <h3 className="text-lg pl-5 font-semibold mt-2">
-                        {post.title}
-                      </h3>
-                      <p className="text-sm w-[95%] pl-5 text-muted-foreground whitespace-pre-wrap mt-1 break-words">
-                        {post.content}
-                      </p>
-                      {post.images && post.images.length > 0 &&(
-                      <div className="h-auto" >  
-                        {post.images.map((imageItem , index)=>(
-                            <img 
-                            key={`image : ${index}`}
-                            src={imageItem.image}
-                            onClick={() => handleImageClick(imageItem.image)}
-                            className="mt-2 object-contain px-0 w-[100%]  h-auto  max-h-[500px] rounded-s"
-                            alt=""
-                          />
-                        ))}
-                         
-                      </div>
-                      
-                        
-                      )}
+              <CardContent className=" h-auto px-0 ">
+                <h3 className="text-[15px] mt-[10px] mb-[10px] text-black  pl-5  ">
+                  {post.title}
+                </h3>
+                <p className="text-sm w-[95%] pl-5 text-muted-foreground whitespace-pre-wrap mt-1 break-words">
+                  {post.content}
+                </p>
+                {post.images && post.images.length > 0 && (
+                  <div className="h-auto">
+                    {post.images.map((imageItem, index) => (
+                      <img
+                        key={`image : ${index}`}
+                        src={imageItem.image}
+                        onClick={() => handleImageClick(imageItem.image)}
+                        className="mt-2 object-contain px-0 w-[100%]  h-auto  max-h-[500px] rounded-s"
+                        alt=""
+                      />
+                    ))}
+                  </div>
+                )}
                 {post.videos && post.videos.length > 0 && (
                   <div>
-                    {post.videos.map((videoItem , index)=>(
-                      <video controls className="mt-2 px-0 w-full h-auto max-h-[600px] object-contain rounded-s">
-                        <source key={`video:${index}`} src={videoItem.video} type="video/mp4" />
+                    {post.videos.map((videoItem, index) => (
+                      <video
+                        controls
+                        className="mt-2 px-0 w-full h-auto max-h-[600px] object-contain rounded-s"
+                      >
+                        <source
+                          key={`video:${index}`}
+                          src={videoItem.video}
+                          type="video/mp4"
+                        />
                       </video>
                     ))}
                   </div>
-                  
-                  
                 )}
-                <div className=" pt-2 mt-5 flex justify-end border-t-2  border-slate-300
-                 ">
-                  <div className="flex items-center" >
-                    {post.like_count > 0 &&<span onClick={()=>navigate(`/liked/${post.id}/`)} className="mr-1 text-center text-s text-slate-600 font-semibold hover:cursor-pointer hover:text-gray-400" >Liked by {post.like_count}</span> }
-                      <button onClick={()=>handleLike(post.id)}  className="  text-primary ">
-                        <Heart  className={` size-5  mr-8 ml-1 ${post.is_liked ? 'text-red-600 fill-red-500':'text-gray-600 fill-transparent' }`  } />
-                      </button>
-                      {post.comment_count > 0 && <span className=" text-center text-s text-slate-600 font-semibold mr-[5px] hover:cursor-pointer hover:text-gray-600" >{post.comment_count}</span>}
-                      <button
-                        variant="ghost"
-                        size="sm"
-                        className="text-primary"
-                        onClick={() => navigate(`/comment/${post.id}/`)}
+                <div
+                  className=" pt-2 mt-5 flex justify-end border-t-2  border-slate-300
+                 "
+                >
+                  <div className="flex items-center">
+                    {post.like_count > 0 && (
+                      <span
+                        onClick={() => navigate(`/liked/${post.id}/`)}
+                        className="mr-1 text-center text-s text-slate-600 font-semibold hover:cursor-pointer hover:text-gray-400"
                       >
-                        <MessageCircle className="mr-7 size-5" />
-                      </button>        
+                        Liked by {post.like_count}
+                      </span>
+                    )}
+                    <button
+                      onClick={() => handleLike(post.id)}
+                      className="  text-primary "
+                    >
+                      <Heart
+                        className={` size-5  mr-8 ml-1 ${
+                          post.is_liked
+                            ? "text-red-600 fill-red-500"
+                            : "text-gray-600 fill-transparent"
+                        }`}
+                      />
+                    </button>
+                    {post.comment_count > 0 && (
+                      <span className=" text-center text-s text-slate-600 font-semibold mr-[5px] hover:cursor-pointer hover:text-gray-600">
+                        {post.comment_count}
+                      </span>
+                    )}
+                    <button
+                      variant="ghost"
+                      size="sm"
+                      className="text-primary"
+                      onClick={() => navigate(`/comment/${post.id}/`)}
+                    >
+                      <MessageCircle className="mr-7 size-5" />
+                    </button>
                   </div>
-                                        
-                  
                 </div>
               </CardContent>
             </Card>
@@ -364,7 +410,7 @@ function Profile() {
       {/* Modals */}
       <UsernameModal
         isOpen={showProfileModal}
-        isClosed={()=> setShowProfileModal(false)}
+        isClosed={() => setShowProfileModal(false)}
         onSubmit={handleProfileEdit}
         title="Edit Profile"
         submitText="Save"
