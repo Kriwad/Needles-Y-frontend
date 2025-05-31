@@ -14,7 +14,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/Components/ui/dropdown";
-import { Heart, MessageCircle } from "lucide-react";
+import { Car, Heart, MessageCircle } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { formatDistanceToNow, set } from "date-fns";
 import {
@@ -26,62 +26,58 @@ import { EraserIcon } from "lucide-react";
 function Comment() {
   const navigate = useNavigate();
   const { postId } = useParams();
-  const [currentUser , setCurrentUser] = useState("");
+  const [currentUser, setCurrentUser] = useState("");
   const [postData, setPostData] = useState([]);
-  const [comments , setComment] = useState([]);
-  const [form , setForm] = useState({
-    commentcontent :"",
-    post_id : ""
-  })
-  const resetForm = ()=>{
-    setForm((prev)=>{
-       const newState = {...prev , commentcontent : "" }
-       console.log(newState.commentcontent)
-       return newState
-    })
-  }
-  const handleCommentInput = (e)=>{
-    setForm((prev)=>({
-        ...prev , commentcontent: e.target.value
-    }))
-    console.log(form.commentcontent)
-  }
+  const [comments, setComment] = useState([]);
+  const [form, setForm] = useState({
+    commentcontent: "",
+    post_id: "",
+  });
+  const resetForm = () => {
+    setForm((prev) => {
+      const newState = { ...prev, commentcontent: "" };
+      console.log(newState.commentcontent);
+      return newState;
+    });
+  };
+  const handleCommentInput = (e) => {
+    setForm((prev) => ({
+      ...prev,
+      commentcontent: e.target.value,
+    }));
+    console.log(form.commentcontent);
+  };
 
-  const handleSubmit= async(e)=>{
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const newformData = new FormData()
-    
+    const newformData = new FormData();
+
     newformData.append("post_id", postId);
-    newformData.append("commentcontent", form.commentcontent)
-    try{
-        await api.post(`/api/user/comment/create/${postId}/`, newformData )
-        resetForm()
-        await fetchComment()
+    newformData.append("commentcontent", form.commentcontent);
+    try {
+      await api.post(`/api/user/comment/create/${postId}/`, newformData);
+      resetForm();
+      await fetchComment();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  // const handleKeyDown = (e) => {
+  //   if (e.key === "Enter" && !e.shifKey) {
+  //     e.preventDefault;
+  //     handleSubmit(e);
+  //   }
+  // };
 
+  const fetchComment = async () => {
+    try {
+      const response = await api.get(`api/user/comment/get/${postId}`);
+      setComment(response.data);
+      console.log(response.data);
+    } catch (error) {
+      console.log(error);
     }
-    catch(error){
-        console.log(error)
-    }
-
-  }
-  const handleKeyDown = (e)=>{
-    
-    if (e.key === "Enter" && !e.shifKey){
-        e.preventDefault;
-        handleSubmit(e)
-    }
-  }
-
-  const fetchComment = async ()=>{
-    try{
-        const response = await api.get(`api/user/comment/get/${postId}`)
-        setComment(response.data)
-        console.log(response.data)
-    }
-    catch(error){
-        console.log(error)
-    }
-  }
+  };
   const fetchPostData = async () => {
     try {
       const res = await api.get(`api/user/list/post/comment/${postId}/`);
@@ -102,16 +98,15 @@ function Comment() {
   const userid = JSON.parse(localStorage.getItem("user_id"));
   console.log(userid);
 
-  const fetchCurrentUser = async ()=>{
-    try{
-        const response = await api.get(`/api/user/current/`)
-        setCurrentUser(response.data)
-        console.log(response.data)
+  const fetchCurrentUser = async () => {
+    try {
+      const response = await api.get(`/api/user/current/`);
+      setCurrentUser(response.data);
+      console.log(response.data);
+    } catch (error) {
+      "error:", error;
     }
-    catch(error){
-        "error:" , error
-    }
-  }
+  };
 
   useEffect(() => {
     fetchPostData();
@@ -226,7 +221,7 @@ function Comment() {
                   )}
                   <button onClick={() => handleLike(postData.id)}>
                     <Heart
-                      className={`size-5 mr-8 ml-1  ${
+                      className={`size- mr-8 ml-1  ${
                         postData.is_liked
                           ? "text-red-600 fill-red-500 "
                           : `text-gray-600 fill-transparent `
@@ -245,72 +240,115 @@ function Comment() {
                 </div>
               </div>
             </CardContent>
-                  
+
             <div>
-            {comments === 0 ? (
-              <p>
-                Be the first one to comment
-              </p>
-            ) : (
-              comments.map((comment)=>(
-                <div key = {comment.id} >
-                  {comment.commentcontent}
-                </div>
-
-
-
-              ))
-            ) }
-              
-
+              {comments === 0 ? (
+                <p>Be the first one to comment</p>
+              ) : (
+                comments.map((comment) => (
+                  <div key = {comment.id} className="mb-[10px] mt-[30px] flex-col">
+                    <Card className="p-0 border-none flex items-start mt-[10px] rounded-md">
+                      <Avatar className="mr-[10px] ml-[10px]">
+                        <AvatarImage
+                          onClick={() =>
+                            navigate(`/profile/${comment.user.id}`)
+                          }
+                          src={comment?.user?.image}
+                        />
+                        <AvatarFallback
+                          onClick={() =>
+                            navigate(`/profile/${comment.user.id}`)
+                          }
+                        >
+                          {comment.user.username[0]}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className=" flex-col flex-1 items-center min-w-0  rounded-md p-[8px] ">
+                        <div>
+                          <span
+                            className=" font-bold "
+                            onClick={() => {
+                              navigate(`/profile/${comment.user.id}`);
+                            }}
+                          >
+                            {comment.user.username}
+                          </span>
+                          <div className="break-words" key={comment.id}>
+                            {comment.commentcontent}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span>143k</span>
+                        <Heart className="mr-[15px] size-4 "></Heart>
+                      </div>
+                    </Card>
+                    <div className="ml-[60px] mt-[5px] font-bold text-zinc-500 ">
+                      <span>Reply</span>
+                    </div>
+                    <div className="ml-[100px] font-bold text-zinc-500">
+                      <span>View replies</span>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
-              
           </Card>
 
-          <div className="mt-5 relative">
-            <Card className="p-0 mb-[6px] px-10 rounded-md">
-              {/* Relative wrapper for absolute layout */}
-              <div className="relative min-h-[60px]">
-                {/* Avatar absolutely positioned at bottom-left */}
-                <div className="absolute bottom-2 left-0">
-                  <Avatar>
-                    <AvatarImage src={currentUser?.image} />
-                    <AvatarFallback>
-                      <button
-                        onClick={() =>
-                          navigate(`/profile/${currentUser?.user?.id}`)
-                        }
-                      >
-                        {currentUser?.username?.[0]}
-                        
-                      </button>
-                    </AvatarFallback>
-                  </Avatar>
+          <Card className="mt-[30px] mb-[30px] flex items-center rounded-md">
+            <Avatar className='mr-[10px] ml-[10px]' >
+              <AvatarImage src={currentUser?.image} />
+              <AvatarFallback>
+                <button onClick={() => navigate(`/profile/${currentUser.id}`)}>
+                  {currentUser?.username?.[0]}
+                </button>
+              </AvatarFallback>
+            </Avatar>
+
+            <div className="flex flex-1 items-center">
+   
+              <form onSubmit={handleSubmit} className="flex flex-1 items-center"> 
+                <textarea
+                  name="commentcontent"
+                  onInput={(e) => {
+                    e.target.style.height = "auto";
+                    e.target.style.height = e.target.scrollHeight + "px";
+                  }}
+                  value={form.commentcontent}
+                  onChange={handleCommentInput}
+                  className="flex-1 px-3 py-2 rounded-md overflow-hidden focus:outline-none resize-none min-h-[40px]" 
+                  rows="1"
+                  placeholder="Type your comment..."
+                >
+                </textarea>
+                <div className="ml-2 mr-2">
+                  <button
+                    className="
+                      px-4 py-2
+                      bg-blue-600
+                      text-white
+                      rounded-lg
+                      font-semibold
+                      text-sm
+                      tracking-wide
+                      flex items-center justify-center
+                      transition-colors
+                      duration-200
+                      hover:bg-blue-700
+                      active:bg-blue-800
+                      focus:outline-none
+                      focus:ring-2
+                      focus:ring-blue-400
+                      focus:ring-opacity-75
+                    "
+                    type="submit"
+                  >
+                    send
+                  </button>
                 </div>
-                <form onSubmit={handleSubmit} >
-                    <div className="flex" >
-                        <textarea
-                        name = "commentcontent"
-                        onKeyDown={handleKeyDown}
-                        onInput={(e)=>{
-                            e.target.style.height= "auto"
-                            e.target.style.height= e.target.scrollHeight + "px"
-                        }}
-                        value = {form.commentcontent}
-                        onChange={handleCommentInput}
-                        className="w-full pl-14 pr-3 py-2 rounded-md overflow-hidden focus:outline-none resize-none min-h-[40px]"
-                        rows="1"
-                        placeholder="Type your comment..."
-                        ></textarea>
-                        <button type = 'submit'>
-                            send
-                        </button>
-                    </div>
-                    
-                </form>
-              </div>
-            </Card>
-          </div>
+              </form>
+            </div>
+          </Card>
         </div>
       </div>
     </div>
