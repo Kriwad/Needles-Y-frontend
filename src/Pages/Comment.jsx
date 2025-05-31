@@ -129,7 +129,7 @@ function Comment() {
         <div className="w-full max-w-2xl">
           <Card
             style={{ boxShadow: "0 2px 8px rgba(0, 0, 0, 0.3)" }}
-            className="mw-full max-w-lg mx-0 px-0 rounded-lg overflow-hidden w-full"
+            className="mw-full  max-w-lg mx-0 px-0 rounded-lg overflow-hidden w-full"
           >
             <CardHeader className="flex  flex-row items-center  justify-between mx-5 space-y-4 ">
               {/* Left Side: Avatar + Username + Date */}
@@ -252,13 +252,16 @@ function Comment() {
               </div>
             </CardContent>
 
-            <div>
+            <div className="bg-neutral-200" >
               {comments === 0 ? (
                 <p>Be the first one to comment</p>
               ) : (
                 comments.map((comment) => (
-                  <div key = {comment.id} className="mb-[10px] mt-[30px] flex-col">
-                    <Card className="p-0 border-none flex items-center mt-[10px] rounded-md">
+                  <div key = {comment.id} className="mb-[10px] mt-[30px]  flex-col">
+                    <div className="flex mt-2 flex-1 border-t-2 border-zinc-400" >
+
+                    </div>
+                    <Card className="p-0 border-none flex bg-neutral-200 items-center mt-[10px] rounded-md">
                       <Avatar className="mr-[10px] ml-[20px] ">
                         <AvatarImage
                           onClick={() =>
@@ -284,7 +287,7 @@ function Comment() {
                           >
                             {comment.user.username}
                           </span>
-                          <div className="break-words" key={comment.id}>
+                          <div className="break-words text-lg " key={comment.id}>
                             {comment.commentcontent}
                           </div>
                         </div>
@@ -300,19 +303,20 @@ function Comment() {
                         
                       </div>
                     </Card>
-                    <div className="ml-[60px] mt-[5px] font-bold text-zinc-500 ">
+                    <div className="ml-[60px] mt-[5px] font-bold text-sm text-zinc-500 ">
                       <span>Reply</span>
                     </div>
-                    <div className="ml-[100px] font-bold text-zinc-500">
+                    <div className="ml-[100px] font-bold text-sm text-zinc-500">
                       <span>View replies</span>
                     </div>
+                    
                   </div>
                 ))
               )}
             </div>
           </Card>
 
-          <Card className="mt-[30px] mb-[30px] max-w-lg flex items-center rounded-md">
+          <Card className="mt-[30px] fixed bottom-0 max-w-lg w-full flex items-center rounded-md">
             <Avatar className='mr-[10px] ml-[10px]' >
               <AvatarImage src={currentUser?.image} />
               <AvatarFallback>
@@ -366,6 +370,7 @@ function Comment() {
               </form>
             </div>
           </Card>
+          <div className="pb-[50px]"></div>
         </div>
       </div>
     </div>

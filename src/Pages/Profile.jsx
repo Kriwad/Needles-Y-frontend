@@ -342,6 +342,7 @@ function Profile() {
                       <button onClick={()=>handleLike(post.id)}  className="  text-primary ">
                         <Heart  className={` size-5  mr-8 ml-1 ${post.is_liked ? 'text-red-600 fill-red-500':'text-gray-600 fill-transparent' }`  } />
                       </button>
+                      {post.comment_count > 0 && <span className=" text-center text-s text-slate-600 font-semibold mr-[5px] hover:cursor-pointer hover:text-gray-600" >{post.comment_count}</span>}
                       <button
                         variant="ghost"
                         size="sm"
