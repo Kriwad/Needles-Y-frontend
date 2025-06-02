@@ -37,7 +37,7 @@ const Navbar = ({ onOpenModal , profileUpdated }) => {
     try{
       const res = await api.get(`api/user/profile/${userID}/`)
       setUserData(res.data)
-      console.log(res.data)
+    
     }catch(error){
       console.log(error)
     }

@@ -4,7 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import api from "../api";
-import Modal from "../Modals/Modal";
+
+import Commentmodal from "../Modals/Commentmodal";
 import Navbar from "../Modals/Navbar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar";
 import { Card, CardContent, CardHeader } from "@/Components/ui/card";
@@ -14,18 +15,20 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/Components/ui/dropdown";
-import { Car, Heart, MessageCircle } from "lucide-react";
+import {Heart, MessageCircle } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { formatDistanceToNow, set } from "date-fns";
+import { formatDistanceToNow, set, setISOWeek } from "date-fns";
 import {
   faEllipsisV,
   faEdit,
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
-import { EraserIcon } from "lucide-react";
+
 function Comment() {
   const navigate = useNavigate();
   const { postId } = useParams();
+  const [editModal  , setEditModal] = useState(false);
+  const [deleteModal , setDeleteModal] = useState(false)
   const [currentUser, setCurrentUser] = useState("");
   const [postData, setPostData] = useState([]);
   const [comments, setComment] = useState([]);
@@ -33,13 +36,73 @@ function Comment() {
     commentcontent: "",
     post_id: "",
   });
+  const [selectedComment, setSelectedComment] = useState(null);
+
   const resetForm = () => {
     setForm((prev) => {
       const newState = { ...prev, commentcontent: "" };
-      console.log(newState.commentcontent);
+ 
       return newState;
     });
   };
+
+  const handleEditOpenModal = (comment)=>{
+    setEditModal(true);
+    setSelectedComment(comment)
+    setForm((prev)=>({
+      ...prev , commentcontent :comment.commentcontent,
+    }));
+  };
+  const handleEditCloseModal = ()=>{
+    setEditModal(false);
+    setSelectedComment(null)
+    resetForm();
+  };
+  const handleCommentEdit = async (e)=>{
+    console.log(selectedComment)
+    console.log(selectedComment.id)
+    console.log(form.commentcontent)
+    
+    if (!selectedComment) return
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append("commentcontent",form.commentcontent)
+    try{
+      const response=await api.patch(`/api/user/edit/comment/${selectedComment.id}/`,formData)
+      console.log(response)
+      console.log(formData)
+      
+      await fetchComment();
+      handleEditCloseModal()
+      
+    }catch(error){
+      console.log(error)
+    }
+  }
+
+  const handleDeleteOpenModal = (comment)=>{
+    setDeleteModal(true);
+    setForm((prev)=>({
+      ...prev, commentcontent : comment.commentcontent
+    }))
+    setSelectedComment(comment);
+  };
+  const handleDeleteCloseModal = ()=>{
+    setDeleteModal(false);
+    setSelectedComment(null)
+  };
+   const handleCommentDeletion = async (e)=>{
+    e.preventDefault();
+    try{
+      await api.delete(`/api/user/comment/${selectedComment.id}/`)
+      await fetchComment();
+      handleDeleteCloseModal()
+    }catch(error){
+      console.log(error);
+
+    }
+  }
+
   const handleCommentInput = (e) => {
     setForm((prev) => ({
       ...prev,
@@ -55,13 +118,16 @@ function Comment() {
     newformData.append("post_id", postId);
     newformData.append("commentcontent", form.commentcontent);
     try {
-      await api.post(`/api/user/comment/create/${postId}/`, newformData);
+      await api.post(`/api/user/post/comment/${postId}/`, newformData);
       resetForm();
       await fetchComment();
     } catch (error) {
       console.log(error);
     }
   };
+ 
+
+  
   // const handleKeyDown = (e) => {
   //   if (e.key === "Enter" && !e.shifKey) {
   //     e.preventDefault;
@@ -71,9 +137,9 @@ function Comment() {
 
   const fetchComment = async () => {
     try {
-      const response = await api.get(`api/user/comment/get/${postId}`);
+      const response = await api.get(`api/user/post/comment/${postId}`);
       setComment(response.data);
-      console.log(response.data);
+  
     } catch (error) {
       console.log(error);
     }
@@ -82,7 +148,7 @@ function Comment() {
     try {
       const res = await api.get(`api/user/list/post/comment/${postId}/`);
       setPostData(res.data);
-      console.log(res.data);
+ 
     } catch (err) {
       console.log(err);
     }
@@ -104,7 +170,7 @@ function Comment() {
     }
   }
   const userid = JSON.parse(localStorage.getItem("user_id"));
-  console.log(userid);
+
 
   const fetchCurrentUser = async () => {
     try {
@@ -171,11 +237,11 @@ function Comment() {
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
-                      <DropdownMenuItem>
-                        <FontAwesomeIcon icon={faEdit} className="mr-2" />
+                      <DropdownMenuItem className='text-blue-700' >
+                        <FontAwesomeIcon  icon={faEdit} className="mr-2" />
                         Edit
                       </DropdownMenuItem>
-                      <DropdownMenuItem>
+                      <DropdownMenuItem className='text-red-500' >
                         <FontAwesomeIcon icon={faTrash} className="mr-2" />
                         Delete
                       </DropdownMenuItem>
@@ -243,7 +309,7 @@ function Comment() {
                     variant="ghost"
                     size="sm"
                     className="text-primary"
-                    onClick={() => navigate(`/comment/${post.id}/`)}
+                    onClick={() => navigate(`/comment/${postData.id}/`)}
                   >
                     <MessageCircle className="mr-7 size-5" />
                   </button>
@@ -253,7 +319,7 @@ function Comment() {
             </CardContent>
 
             <div className="bg-neutral-200" >
-              {comments === 0 ? (
+              {comments.length === 0 ? (
                 <p>Be the first one to comment</p>
               ) : (
                 comments.map((comment) => (
@@ -261,7 +327,7 @@ function Comment() {
                     <div className="flex mt-2 flex-1 border-t-2 border-zinc-400" >
 
                     </div>
-                    <Card className="p-0 border-none flex bg-neutral-200 items-center mt-[10px] rounded-md">
+                    <Card className="p-0 border-none flex  bg-neutral-200 items-center mt-[10px] rounded-md">
                       <Avatar className="mr-[10px] ml-[20px] ">
                         <AvatarImage
                           onClick={() =>
@@ -277,22 +343,55 @@ function Comment() {
                           {comment.user.username[0]}
                         </AvatarFallback>
                       </Avatar>
-                      <div className=" flex-col flex-1 items-center min-w-0  rounded-md p-[8px] ">
-                        <div>
-                          <span
-                            className=" font-bold "
-                            onClick={() => {
-                              navigate(`/profile/${comment.user.id}`);
-                            }}
-                          >
-                            {comment.user.username}
-                          </span>
-                          <div className="break-words text-lg " key={comment.id}>
-                            {comment.commentcontent}
+                      <div className="flex flex-1 min-w-0" >
+                        <div className="flex flex-col flex-1 items-start min-w-0 rounded-md p-[8px] max-w-full ">
+                          <div className="overflow-hidden" >
+                            <span
+                              className=" font-bold "
+                              onClick={() => {
+                                navigate(`/profile/${comment.user.id}`);
+                              }}
+                            >
+                              {comment.user.username}
+                            </span>
+                            <div className="break-all text-lg overflow-hidden whitespace-normal" key={comment.id}>
+                              {comment.commentcontent}
+                            </div>
                           </div>
                         </div>
+                        {comment?.user?.id === currentUser.id &&(
+                          <div className="mr-[10px]" >
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <button>
+                                <FontAwesomeIcon
+                                  icon={faEllipsisV}
+                                  className="h-3 w-3"
+                                />
+                              </button>
+                            
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                              <DropdownMenuItem onClick={()=> handleEditOpenModal(comment)}  className='text-blue-700' >
+                                <FontAwesomeIcon icon={faEdit} className="mr-2" />
+                                  Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuItem className='text-red-600' >
+                                <FontAwesomeIcon icon={faTrash} className="mr-2" />
+                                  Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        
+                        </div>
+                        )
+
+                        }
+                        
+
                       </div>
-                      {console.log(comment)}
+                      
+                     
                       <div className="flex items-center gap-2">
                         <span className=" text-center text-xs text-slate-600 font-semibold hover:cursor-pointer hover:text-gray-600" >{comment.comment_like_count}</span>
                         <button onClick={()=>handleComentLike(comment.id)} >
@@ -373,6 +472,18 @@ function Comment() {
           <div className="pb-[50px]"></div>
         </div>
       </div>
+
+      <Commentmodal
+        isOpen={editModal}
+        onChange ={handleCommentInput}
+        isCLosed={handleEditCloseModal}
+        form= {form}
+        onSubmit={handleCommentEdit}
+        title = {"Edit comment"}
+        modalType={"edit"}
+      />
+
+      
     </div>
   );
 }

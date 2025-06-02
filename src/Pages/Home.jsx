@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar";
 import { Card, CardContent, CardHeader } from "@/Components/ui/card";
 import imageCompression from 'browser-image-compression';
-import { FileType, Heart, MessageCircle} from "lucide-react";
+import {Heart, MessageCircle} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,7 +24,7 @@ import {
 
 import Modal from "../Modals/Modal";
 
-import { formatDistanceToNow, set } from "date-fns";
+import { formatDistanceToNow} from "date-fns";
 
 
 function Home() {
@@ -364,6 +364,7 @@ function Home() {
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem
                               onClick={() => handleEditOpenModal(post)}
+                              className="text-blue-700"
                             >
                               <FontAwesomeIcon icon={faEdit} className="mr-2" />
                               Edit

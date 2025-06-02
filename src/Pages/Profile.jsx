@@ -306,6 +306,7 @@ function Profile() {
                           });
                           setShowEditModal(true);
                         }}
+                        className="text-blue-700"
                       >
                         <FontAwesomeIcon icon={faEdit} className="mr-2" />
                         Edit
