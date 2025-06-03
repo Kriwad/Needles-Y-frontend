@@ -1,4 +1,3 @@
-"use client"
 
 import { useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
@@ -8,8 +7,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Heart, MessageCircle, MoreHorizontal, Edit, Trash2, User, Clock, Settings, Camera } from "lucide-react"
-import Navbar from "../Modals/navbar"
-import Modal from "../Modals/modal"
+import Navbar from "../Modals/Navbar";
+import Modal from "../Modals/Modal";
 import UsernameModal from "../Modals/UsernameModal"
 import api from "../api"
 
