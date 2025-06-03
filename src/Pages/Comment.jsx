@@ -1,5 +1,5 @@
 import React from "react";
-import { useState } from "react";
+import { useState , useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
@@ -30,72 +30,93 @@ function Comment() {
   const [editModal  , setEditModal] = useState(false);
   const [deleteModal , setDeleteModal] = useState(false)
   const [currentUser, setCurrentUser] = useState("");
-  const [postData, setPostData] = useState([]);
+  const [postData, setPostData] = useState({});
   const [comments, setComment] = useState([]);
-  const [form, setForm] = useState({
+  const [postcommentform, setpostcommentForm] = useState({
     commentcontent: "",
     post_id: "",
   });
+  const [editcommentform , seteditcommentForm] = useState({
+    commentcontent : ""
+  })
+  const [postForm , setpostForm ] = useState({
+    title : "",
+    content : "",
+    image:"",
+    video: ""
+  })
+  const [isSubmitting , setIsSubmitting]= useState(false)
+  const [refreshComment , setrefreshComment] =useState(0)
   const [selectedComment, setSelectedComment] = useState(null);
 
-  const resetForm = () => {
-    setForm((prev) => {
-      const newState = { ...prev, commentcontent: "" };
- 
-      return newState;
-    });
-  };
-
-  const handleEditOpenModal = (comment)=>{
-    setEditModal(true);
-    setSelectedComment(comment)
-    setForm((prev)=>({
-      ...prev , commentcontent :comment.commentcontent,
+  const resetpostcommentForm = () => {
+    setpostcommentForm((prev)=>({
+      ...prev , commentcontent : ""
     }));
   };
+
+
+  const handleEditOpenModal = (comment , event)=>{
+  
+    setEditModal(true);
+    setSelectedComment(comment)
+    seteditcommentForm((prev)=>({
+      ...prev , commentcontent :comment.commentcontent,
+    }));
+
+  };
   const handleEditCloseModal = ()=>{
+ 
     setEditModal(false);
     setSelectedComment(null)
-    resetForm();
+    seteditcommentForm({commentcontent: "" })
   };
   const handleCommentEdit = async (e)=>{
     console.log(selectedComment)
     console.log(selectedComment.id)
-    console.log(form.commentcontent)
+    console.log(postcommentform.commentcontent)
     
     if (!selectedComment) return
     e.preventDefault();
+
+    if(isSubmitting) return
+    setIsSubmitting(true)
+    
     const formData = new FormData();
-    formData.append("commentcontent",form.commentcontent)
+    formData.append("commentcontent",editcommentform.commentcontent)
     try{
       const response=await api.patch(`/api/user/edit/comment/${selectedComment.id}/`,formData)
-      console.log(response)
-      console.log(formData)
-      
       await fetchComment();
+
       handleEditCloseModal()
       
     }catch(error){
       console.log(error)
+    }finally{
+      setIsSubmitting(false)
     }
+    
   }
 
   const handleDeleteOpenModal = (comment)=>{
+   
     setDeleteModal(true);
-    setForm((prev)=>({
+    seteditcommentForm((prev)=>({
       ...prev, commentcontent : comment.commentcontent
     }))
+ 
     setSelectedComment(comment);
   };
   const handleDeleteCloseModal = ()=>{
     setDeleteModal(false);
     setSelectedComment(null)
   };
-   const handleCommentDeletion = async (e)=>{
+  const handleCommentDeletion = async (e)=>{
     e.preventDefault();
     try{
-      await api.delete(`/api/user/comment/${selectedComment.id}/`)
-      await fetchComment();
+      await api.delete(`/api/user/edit/comment/${selectedComment.id}/`)
+      setrefreshComment((prev)=>prev+1)
+    
       handleDeleteCloseModal()
     }catch(error){
       console.log(error);
@@ -104,23 +125,28 @@ function Comment() {
   }
 
   const handleCommentInput = (e) => {
-    setForm((prev) => ({
+    setpostcommentForm((prev) => ({
       ...prev,
       commentcontent: e.target.value,
     }));
-    console.log(form.commentcontent);
+    console.log(postcommentform.commentcontent);
   };
+  const handleCommentEditInput = (e)=>{
+    seteditcommentForm((prev)=>({
+      ...prev , commentcontent : e.target.value
+    }))
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const newformData = new FormData();
 
     newformData.append("post_id", postId);
-    newformData.append("commentcontent", form.commentcontent);
+    newformData.append("commentcontent", postcommentform.commentcontent);
     try {
       await api.post(`/api/user/post/comment/${postId}/`, newformData);
-      resetForm();
-      await fetchComment();
+      resetpostcommentForm();
+      setrefreshComment((prev)=>prev+1)
     } catch (error) {
       console.log(error);
     }
@@ -149,8 +175,8 @@ function Comment() {
       const res = await api.get(`api/user/list/post/comment/${postId}/`);
       setPostData(res.data);
  
-    } catch (err) {
-      console.log(err);
+    } catch (error) {
+      console.log(error);
     }
   };
   const handleLike = async (postID) => {
@@ -186,7 +212,7 @@ function Comment() {
     fetchPostData();
     fetchCurrentUser();
     fetchComment();
-  }, []);
+  }, [refreshComment]);
   return (
     <div className="  w-full h-[100%] bg-zinc-200">
       <Navbar />
@@ -320,7 +346,9 @@ function Comment() {
 
             <div className="bg-neutral-200" >
               {comments.length === 0 ? (
-                <p>Be the first one to comment</p>
+                <div className="p-5" >
+                  <p className=" font-extralight text-gray-800 " >No comments yet!</p>
+                </div>
               ) : (
                 comments.map((comment) => (
                   <div key = {comment.id} className="mb-[10px] mt-[30px]  flex-col">
@@ -372,11 +400,11 @@ function Comment() {
                             
                             </DropdownMenuTrigger>
                             <DropdownMenuContent>
-                              <DropdownMenuItem onClick={()=> handleEditOpenModal(comment)}  className='text-blue-700' >
+                              <DropdownMenuItem onClick={(e)=> handleEditOpenModal(comment)}  className='text-blue-700' >
                                 <FontAwesomeIcon icon={faEdit} className="mr-2" />
                                   Edit
                               </DropdownMenuItem>
-                              <DropdownMenuItem className='text-red-600' >
+                              <DropdownMenuItem onClick={(e)=>(handleDeleteOpenModal(comment))} className='text-red-600' >
                                 <FontAwesomeIcon icon={faTrash} className="mr-2" />
                                   Delete
                               </DropdownMenuItem>
@@ -434,7 +462,7 @@ function Comment() {
                     e.target.style.height = "auto";
                     e.target.style.height = e.target.scrollHeight + "px";
                   }}
-                  value={form.commentcontent}
+                  value={postcommentform.commentcontent}
                   onChange={handleCommentInput}
                   className="flex-1 px-3 py-2 rounded-md overflow-hidden focus:outline-none resize-none min-h-[40px]" 
                   rows="1"
@@ -443,24 +471,26 @@ function Comment() {
                 </textarea>
                 <div className="ml-2 mr-2">
                   <button
-                    className="
-                      px-4 py-2
-                      bg-blue-600
+                    className={`
+                      px-6 py-2
                       text-white
                       rounded-lg
                       font-semibold
                       text-sm
                       tracking-wide
                       flex items-center justify-center
-                      transition-colors
+                      transition-all
                       duration-200
-                      hover:bg-blue-700
-                      active:bg-blue-800
                       focus:outline-none
                       focus:ring-2
-                      focus:ring-blue-400
-                      focus:ring-opacity-75
-                    "
+                      focus:ring-offset-2
+                      shadow-lg
+                      ${
+                        isSubmitting
+                          ? "bg-gray-400 cursor-not-allowed"
+                          : "bg-blue-600 hover:bg-blue-700 active:bg-blue-800 focus:ring-blue-500 hover:shadow-xl"
+                      }
+                    `}
                     type="submit"
                   >
                     send
@@ -475,12 +505,23 @@ function Comment() {
 
       <Commentmodal
         isOpen={editModal}
-        onChange ={handleCommentInput}
+     
+        onChange ={handleCommentEditInput}
         isCLosed={handleEditCloseModal}
-        form= {form}
+        form= {editcommentform}
         onSubmit={handleCommentEdit}
         title = {"Edit comment"}
         modalType={"edit"}
+      />
+      <Commentmodal
+        isOpen={deleteModal}
+     
+        readOnly= {true}
+        isCLosed={handleDeleteCloseModal}
+        form= {editcommentform}
+        onSubmit={handleCommentDeletion}
+        title = {"Delete comment"}
+        modalType={"delete"}
       />
 
       
