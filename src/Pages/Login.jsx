@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
-
+import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -97,7 +97,7 @@ const Login = () => {
                   className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 pr-10"
                   placeholder="Enter your password"
                 />
-                <button
+                <Button
                   type="button"
                   variant="ghost"
                   size="icon"
@@ -105,7 +105,7 @@ const Login = () => {
                   className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
+                </Button>
               </div>
             </div>
 
@@ -115,7 +115,7 @@ const Login = () => {
               </Alert>
             )}
 
-            <button
+            <Button
               type="submit"
               className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-3"
               disabled={loading}
@@ -128,7 +128,7 @@ const Login = () => {
               ) : (
                 "Sign In"
               )}
-            </button>
+            </Button>
           </form>
 
           <div className="mt-6 text-center">
