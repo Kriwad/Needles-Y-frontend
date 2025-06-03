@@ -1,132 +1,165 @@
-import React from "react";
-import { useState } from "react";
 
- const Modal = ({ 
-  isOpen, 
-  isClosed, 
-  onSubmit, 
-  title: modalTitle, 
-  submitText, 
-  formData, 
-  handleInputChange ,
+
+import { useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Label } from "@/components/ui/label"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { X, Upload, Loader2 } from "lucide-react"
+
+const Modal = ({
+  isOpen,
+  isClosed,
+  onSubmit,
+  title: modalTitle,
+  submitText,
+  formData,
+  handleInputChange,
   readOnly = false,
   modalType,
-  isProcessingFiles
+  isProcessingFiles,
 }) => {
-  const [isSubmitting , setIsSubmitting] = useState(false)
-  const disableSubmitButton = isProcessingFiles;
-  if (!isOpen) return null;
-  const handleSubmit= async (e)=>{
-    e.preventDefault();
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const disableSubmitButton = isProcessingFiles || isSubmitting
 
-    if (isSubmitting) return ;
+  if (!isOpen) return null
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+
+    if (isSubmitting) return
 
     setIsSubmitting(true)
-    
-    try{
-      await onSubmit(e);
 
+    try {
+      await onSubmit(e)
       setIsSubmitting(false)
-
-    }catch(error){
-      console.log("error:" , error)
+    } catch (error) {
+      console.log("error:", error)
       setIsSubmitting(false)
     }
-
   }
-  
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">{modalTitle}</h2>
-          <button
-            onClick={isClosed}
-            className="text-gray-500 hover:text-gray-700 "
-          >
-            &times;
-          </button>
-        </div>
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">
-              Title
-            </label>
-            <input
-              type="text"
-              name="title"
-              value={formData.title}
-              onChange={handleInputChange}
-              
-              readOnly={readOnly}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">
-              Content
-            </label>
-            <textarea
-              name="content"
-              value={formData.content}
-              onChange={handleInputChange}
-              rows="4"
-              readOnly={readOnly}
-              
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-            ></textarea>
-          </div>
-          {modalType !== "edit" && modalType !== "delete" && (
-            <>
-              <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">
-              Image
-            </label>
-            <input
-            type = "file"
-              name="image"
-              onChange={handleInputChange}
-              accept="image/"
-              multiple
-              readOnly={readOnly}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-            ></input>
-          </div>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+      <Card className="w-full max-w-xl bg-white shadow-2xl border-0">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+          <CardTitle className="text-xl font-semibold text-gray-900">{modalTitle}</CardTitle>
+          <Button variant="ghost" size="icon" onClick={isClosed} className="h-8 w-8 rounded-full hover:bg-gray-100">
+            <X className="h-4 w-4" />
+          </Button>
+        </CardHeader>
 
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">
-              Video
-            </label>
-            <input
-            type = "file"
-              name="video"
-              onChange={handleInputChange}
-              multiple
-              accept="video/*"
-             
-             
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-            ></input>
-          </div>
-            
-            </>
-          )}
-          
-          <div className="flex justify-end">
-            <button
-              type="submit"
-              disabled = {disableSubmitButton}
-              className={disableSubmitButton ? 'bg-gray-400 cursor-not-allowed px-4 py-2 rounded-md'  : modalType === "delete" ? "bg-red-600 rounded-md text-white px-4 py-2 hover:bg-red-900" : "bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"}
-            >
-              {submitText}
-            </button>
-            
-          </div>
-        </form>
-      </div>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="title" className="text-sm font-medium text-gray-700">
+                Title
+              </Label>
+              <Input
+                id="title"
+                name="title"
+                value={formData.title}
+                onChange={handleInputChange}
+                readOnly={readOnly}
+                className="border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                placeholder="Enter a title..."
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="content" className="text-sm font-medium text-gray-700">
+                Content
+              </Label>
+              <Textarea
+                id="content"
+                name="content"
+                value={formData.content}
+                onChange={handleInputChange}
+                rows={4}
+                readOnly={readOnly}
+                className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 resize-none"
+                placeholder="What's on your mind?"
+              />
+            </div>
+
+            {modalType !== "edit" && modalType !== "delete" && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="image" className="text-sm font-medium text-gray-700">
+                    Images
+                  </Label>
+                  <div className="relative  ">
+                    <Input
+                      id="image"
+                      type="file"
+                      name="image"
+                      onChange={handleInputChange}
+                      accept="image/*"
+                      multiple
+                      readOnly={readOnly}
+                      className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                    />
+                    <Upload className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="video" className="text-sm font-medium text-gray-700">
+                    Videos
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      id="video"
+                      type="file"
+                      name="video"
+                      onChange={handleInputChange}
+                      multiple
+                      accept="video/*"
+                      className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                    />
+                    <Upload className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {isProcessingFiles && (
+              <div className="flex items-center justify-center p-4 bg-blue-50 rounded-lg">
+                <Loader2 className="h-4 w-4 animate-spin mr-2 text-blue-600" />
+                <span className="text-sm text-blue-600">Processing files...</span>
+              </div>
+            )}
+
+            <div className="flex justify-end space-x-3 pt-4">
+              <Button type="button" variant="outline" onClick={isClosed} className="px-6">
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={disableSubmitButton}
+                className={`px-6 min-w-[100px] ${
+                  modalType === "delete"
+                    ? "bg-red-600 hover:bg-red-700 focus:ring-red-500"
+                    : "bg-blue-600 hover:bg-blue-700 focus:ring-blue-500"
+                }`}
+              >
+                {isSubmitting ? (
+                  <div className="flex items-center">
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    {modalType === "delete" ? "Deleting..." : "Creating..."}
+                  </div>
+                ) : (
+                  submitText
+                )}
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
     </div>
-  );
-};
+  )
+}
 
-export default Modal;
+export default Modal

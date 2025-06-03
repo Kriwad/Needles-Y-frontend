@@ -2,8 +2,12 @@
 
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faEye, faEyeSlash, faSpinner } from "@fortawesome/free-solid-svg-icons"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Eye, EyeOff, Loader2, LogIn } from "lucide-react"
 import api from "../api"
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constants"
 
@@ -19,33 +23,26 @@ const Login = () => {
     e.preventDefault()
     setLoading(true)
     setError("")
+
     try {
+      const res = await api.post("/api/token/", { username: username, password: password })
 
-     
-      
-
-      const res = await api.post("/api/token/",{username : username , password: password})
-      
       localStorage.setItem(ACCESS_TOKEN, res.data.access)
       localStorage.setItem(REFRESH_TOKEN, res.data.refresh)
 
-      
       const userRes = await api.get(`api/user/current/`, {
         headers: { Authorization: `Bearer ${res.data.access}` },
       })
-      
+
       localStorage.setItem("user_id", userRes.data.id)
       localStorage.setItem("fullname", userRes.data.fullname)
       localStorage.setItem("username", userRes.data.username)
       localStorage.setItem("image", userRes.data.image)
       console.log(userRes.data)
       navigate("/")
-      
-
     } catch (error) {
-  
-      console.error('Full error object:', error);
-      console.error('Response data:', error.response?.data);
+      console.error("Full error object:", error)
+      console.error("Response data:", error.response?.data)
       if (error.response && error.response.status === 401) {
         setError("Invalid username or password. Please try again.")
       } else if (error.response && error.response.status === 400) {
@@ -56,80 +53,96 @@ const Login = () => {
     } finally {
       setLoading(false)
     }
-   
-
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-md px-6 py-8 bg-white rounded-lg shadow-md">
-        <h1 className="mb-1 text-3xl font-bold text-center text-gray-800">Sign In</h1>
-        <p className="mb-8 text-sm text-center text-gray-600">To the Point</p>
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label htmlFor="username" className="block mb-2 text-sm font-medium text-gray-700">
-              Username
-            </label>
-            <input
-              id="username"
-              type="text"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter your username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
-            
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+      <Card className="w-full max-w-md shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
+        <CardHeader className="text-center pb-8">
+          <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <LogIn className="h-8 w-8 text-white" />
           </div>
+          <CardTitle className="text-3xl font-bold text-gray-900">Welcome to NeedlesY  </CardTitle>
+          <p className="text-gray-600 mt-2">Sign in to continue to NeedlesY</p>
+        </CardHeader>
 
-          <div>
-            <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-700">
-              Password
-            </label>
-            <div className="relative">
-              <input
-                id="password"
-                type={showPassword ? "text" : "password"}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="username" className="text-sm font-medium text-gray-700">
+                Username
+              </Label>
+              <Input
+                id="username"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 required
+                className="border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                placeholder="Enter your username"
               />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-600 hover:text-gray-800"
-              >
-                <FontAwesomeIcon icon={showPassword ? faEye : faEyeSlash} />
-              </button>
             </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="password" className="text-sm font-medium text-gray-700">
+                Password
+              </Label>
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 pr-10"
+                  placeholder="Enter your password"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
+              </div>
+            </div>
+
+            {error && (
+              <Alert variant="destructive">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+
+            <Button
+              type="submit"
+              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-3"
+              disabled={loading}
+            >
+              {loading ? (
+                <div className="flex items-center">
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Signing in...
+                </div>
+              ) : (
+                "Sign In"
+              )}
+            </Button>
+          </form>
+
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-600">
+              New to NeedlesY?{" "}
+              <Link to="/register" className="font-medium text-blue-600 hover:text-blue-500 transition-colors">
+                Join now
+              </Link>
+            </p>
           </div>
-
-          {error && <div className="p-3 text-sm text-red-600 bg-red-100 border border-red-400 rounded-md">{error}</div>}
-
-          <button
-            type="submit"
-            className="w-full px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
-            disabled={loading}
-          >
-            {loading ? <FontAwesomeIcon icon={faSpinner} spin className="mr-2" /> : "Login"}
-          </button>
-        </form>
-
-        <div className="mt-6 text-center">
-          <p className="text-sm text-gray-600">
-            New to Needles?{" "}
-            <Link to="/register" className="font-medium text-blue-600 hover:text-blue-500">
-              Join now
-            </Link>
-          </p>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }
 
 export default Login
-

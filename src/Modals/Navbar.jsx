@@ -1,208 +1,194 @@
-'use client';
-
-import React, { useEffect, useState  } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faSearch ,faBars } from '@fortawesome/free-solid-svg-icons';
-import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar";
-import { Sheet, SheetContent, SheetTrigger } from "@/Components/ui/sheet"
-import { useLocation } from 'react-router-dom';
-
-import api from '../api';
 
 
+import { useEffect, useState } from "react"
+import { useNavigate, useParams } from "react-router-dom"
+import { useLocation } from "react-router-dom"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Search, Plus, Menu, LogOut } from "lucide-react"
+import api from "../api"
 
-const Navbar = ({ onOpenModal , profileUpdated }) => {
+const Navbar = ({ onOpenModal, profileUpdated }) => {
   const { userId } = useParams()
-  const [search, setSearch] = useState("");
-  const navigate = useNavigate();
+  const [search, setSearch] = useState("")
+  const navigate = useNavigate()
   const location = useLocation()
 
-  const isProfilePage =  userId ? location.pathname === `/profile/${userId}` : false;
+  const isProfilePage = userId ? location.pathname === `/profile/${userId}` : false
   const hideButton = location.pathname.startsWith("/comment/")
+
   const handleSearch = (e) => {
-    setSearch(e.target.value);
-   
-  };
-  const [userData , setUserData] = useState({
-    username:"",
-    fullname : "",
-    id : "" , 
-    image : ""
- 
+    setSearch(e.target.value)
+  }
+
+  const [userData, setUserData] = useState({
+    username: "",
+    fullname: "",
+    id: "",
+    image: "",
   })
-  
-  const fetchUser = async ()=>{
+
+  const fetchUser = async () => {
     const userID = localStorage.getItem("user_id")
-    try{
+    try {
       const res = await api.get(`api/user/profile/${userID}/`)
       setUserData(res.data)
-    
-    }catch(error){
+    } catch (error) {
       console.log(error)
     }
   }
-  
 
-  useEffect(()=> {
+  useEffect(() => {
     fetchUser()
-   },[profileUpdated])
-
+  }, [profileUpdated])
 
   const handleLogout = (e) => {
-    localStorage.removeItem("access");
-    localStorage.removeItem("refresh");
-    localStorage.removeItem("username");
-    localStorage.removeItem("fullname");
-    localStorage.removeItem("user_id");
-    navigate("/login/");
-  };
+    localStorage.removeItem("access")
+    localStorage.removeItem("refresh")
+    localStorage.removeItem("username")
+    localStorage.removeItem("fullname")
+    localStorage.removeItem("user_id")
+    navigate("/login/")
+  }
 
   return (
-    <nav className=" fixed z-50 mb-0 items-center justify-between bg-black py-4 shadow-md w-full">
-      <div className="container mx-auto">
+    <nav className="fixed top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-sm">
+      <div className="max-w-7xl mx-auto px-4">
         {/* Desktop View */}
-        <div className="hidden sm:flex items-center justify-evenly ">
-          <div className="flex-shrink-0 mr-4">
-            <span onClick={() => navigate("/")} className="text-2xl font-bold text-white cursor-pointer">
+        <div className="hidden md:flex items-center justify-between h-16">
+          <div className="flex items-center space-x-8">
+            <button
+              onClick={() => navigate("/")}
+              className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent hover:from-blue-700 hover:to-purple-700 transition-all"
+            >
               NeedlesY
-            </span>
+            </button>
           </div>
 
-          <div className="flex-grow mx-1 min-w-40 max-w-xl">
+          <div className="flex-1 max-w-xl mx-8">
             <div className="relative">
-              <input
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input
                 type="text"
                 placeholder="Search users..."
                 value={search}
                 onChange={handleSearch}
-                className="w-full min-w-44 px-4 py-2 rounded-full bg-white bg-opacity-20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-white focus:bg-opacity-30 transition duration-300"
+                className="pl-10 bg-gray-50 border-gray-200 focus:bg-white focus:border-blue-500 focus:ring-blue-500"
               />
-              <button>
-                <FontAwesomeIcon
-                  icon={faSearch}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white opacity-70"
-                />
-              </button>
             </div>
           </div>
-          
-          <div className="flex justify-end gap-[50px] ">
-            { !hideButton &&  (
-            
-            <button
-              onClick={onOpenModal}
-              className="w-10 h-10 bg-white bg-opacity-20 text-white rounded-full hover:bg-opacity-30 focus:outline-none focus:ring-2 focus:ring-white transition duration-300 transform hover:scale-110"
-            >
-              <FontAwesomeIcon icon={faPlus} size="lg" />
-            </button>)}
+
+          <div className="flex items-center space-x-4">
+            {!hideButton && (
+              <Button
+                onClick={onOpenModal}
+                size="icon"
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-full"
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+            )}
 
             {userData && (
-              <div className="flex items-center space-x-2">
-                <Avatar
-                  className="h-8 w-8 cursor-pointer"
-                  onClick={() => {
-                    if (!isProfilePage) {
-                      navigate(`/profile/${userData.id}`)
-                    }
-                  }}
-                >
-                  <AvatarImage src={userData.image || "/placeholder.svg?height=32&width=32"} alt={userData.fullname} />
-                  <AvatarFallback>{userData.fullname[0]}</AvatarFallback>
+              <div
+                className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 rounded-full p-2 transition-colors"
+                onClick={() => {
+                  if (!isProfilePage) {
+                    navigate(`/profile/${userData.id}`)
+                  }
+                }}
+              >
+                <Avatar className="h-8 w-8 ring-2 ring-gray-100">
+                  <AvatarImage src={userData.image || "/placeholder.svg"} alt={userData.fullname} />
+                  <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-sm">
+                    {userData.fullname[0]?.toUpperCase()}
+                  </AvatarFallback>
                 </Avatar>
-                <span onClick={() => {
-                            if (!isProfilePage) {
-                              navigate(`/profile/${userData.id}`)
-                            }
-                          }} className="text-white hover:underline cursor-pointer">{userData.username}</span>
+                <span className="text-sm font-medium text-gray-700 hover:text-gray-900">{userData.username}</span>
               </div>
             )}
-            <button
-              onClick={handleLogout}
-              className="bg-white text-black font-semibold py-2 px-4 rounded-full hover:bg-blue-100 transition duration-300"
-            >
+
+            <Button onClick={handleLogout} variant="outline" className="border-gray-200 hover:bg-gray-50">
+              <LogOut className="h-4 w-4 mr-2" />
               Logout
-            </button>
+            </Button>
           </div>
         </div>
 
         {/* Mobile View */}
-        <div className="sm:hidden flex items-center justify-between gap-2 ">
-          {/* Logo */}
-          <div className="  flex">
-            <span onClick={() => navigate("/")} className="text-xl font-bold text-white cursor-pointer">
-              NeedlesY
-            </span>
-          </div>
+        <div className="md:hidden flex items-center justify-between h-16">
+          <button
+            onClick={() => navigate("/")}
+            className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
+          >
+            NeedlesY
+          </button>
 
-          {/* Search Bar */}
-          <div className="flex-1 gap-5 max-w-[300px]">
+          <div className="flex-1 max-w-xs mx-4">
             <div className="relative">
-              <input
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input
                 type="text"
-                placeholder="Search user"
+                placeholder="Search..."
                 value={search}
                 onChange={handleSearch}
-                className="w-full px-3 py-1.5 rounded-full bg-zinc-800 text-white placeholder-gray-400 text-sm focus:outline-none focus:ring-1 focus:ring-white/50 transition duration-300"
+                className="pl-10 text-sm bg-gray-50 border-gray-200 focus:bg-white focus:border-blue-500 focus:ring-blue-500"
               />
-              <button className="absolute right-2 top-1/2 transform -translate-y-1/2">
-                <FontAwesomeIcon icon={faSearch} className="text-gray-400 text-sm" />
-              </button>
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex items-center gap-5">
-            { !hideButton &&  (<button
-              onClick={onOpenModal}
-              className="w-8 h-8 bg-zinc-800 text-white rounded-full hover:bg-zinc-700 focus:outline-none focus:ring-1 focus:ring-white/50 transition duration-300 flex items-center justify-center"
-            >
-              <FontAwesomeIcon icon={faPlus} className="text-sm" />
-            </button>)}
+          <div className="flex items-center space-x-2">
+            {!hideButton && (
+              <Button
+                onClick={onOpenModal}
+                size="icon"
+                className="h-9 w-9 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-full"
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+            )}
 
-            <Sheet className= "" >
+            <Sheet>
               <SheetTrigger asChild>
-                <button className="w-8 h-8 bg-zinc-800 text-white rounded-full hover:bg-zinc-700 focus:outline-none focus:ring-1 focus:ring-white/50 transition duration-300 flex items-center justify-center">
-                  <FontAwesomeIcon icon={faBars} className="text-sm" />
-                </button>
+                <Button variant="outline" size="icon" className="h-9 w-9 border-gray-200">
+                  <Menu className="h-4 w-4" />
+                </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[250px] bg-zinc-200 sm:w-[300px]">
+              <SheetContent side="right" className="w-80 bg-white">
                 <div className="flex flex-col h-full">
-                  <div className="flex-1">
+                  <div className="flex-1 pt-6">
                     {userData && (
-                      <div className="flex items-center space-x-2 mb-6">
-                        <Avatar
-                          className="h-10 w-10"
-                          onClick={() => {
-                            if (!isProfilePage) {
-                              navigate(`/profile/${userData.id}`)
-                            }
-                          }}
-                        >
-                          <AvatarImage
-                            src={userData.image || "/placeholder.svg?height=40&width=40"}
-                            
-                          />
-                          <AvatarFallback  >{userData.fullname[0]}</AvatarFallback>
+                      <div
+                        className="flex items-center space-x-3 p-4 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors mb-6"
+                        onClick={() => {
+                          if (!isProfilePage) {
+                            navigate(`/profile/${userData.id}`)
+                          }
+                        }}
+                      >
+                        <Avatar className="h-12 w-12 ring-2 ring-gray-100">
+                          <AvatarImage src={userData.image || "/placeholder.svg"} />
+                          <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+                            {userData.fullname[0]?.toUpperCase()}
+                          </AvatarFallback>
                         </Avatar>
                         <div>
-                          <h2 onClick={() => {
-                            if (!isProfilePage) {
-                             
-                            }
-                          }} className="text-lg font-semibold">{userData.username}</h2>
+                          <h2 className="font-semibold text-gray-900">{userData.username}</h2>
                           <p className="text-sm text-gray-500">View Profile</p>
                         </div>
                       </div>
                     )}
-                    <div className="space-y-4">
-                      <button
-                        onClick={handleLogout}
-                        className="w-full bg-white text-black font-semibold border-solid border-black border-2 py-2 px-4 rounded-full hover:bg-blue-100 transition duration-300"
-                      >
-                        Logout
-                      </button>
-                    </div>
+
+                    <Button
+                      onClick={handleLogout}
+                      variant="outline"
+                      className="w-full border-gray-200 hover:bg-gray-50"
+                    >
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Logout
+                    </Button>
                   </div>
                 </div>
               </SheetContent>
@@ -211,7 +197,7 @@ const Navbar = ({ onOpenModal , profileUpdated }) => {
         </div>
       </div>
     </nav>
-  );
-};
+  )
+}
 
-export default Navbar;
+export default Navbar

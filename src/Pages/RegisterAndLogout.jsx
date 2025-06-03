@@ -2,12 +2,15 @@
 
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faEye, faEyeSlash, faSpinner } from "@fortawesome/free-solid-svg-icons"
-import api from "../api"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Eye, EyeOff, Loader2, UserPlus, CheckCircle, AlertCircle } from "lucide-react"
 import PublicAPi from "../../PublicAPi"
 
-export default function RegisterAndLogout() {
+export default function Register() {
   const [data, setData] = useState({
     email: "",
     firstname: "",
@@ -27,6 +30,7 @@ export default function RegisterAndLogout() {
     setLoading(true)
     setError("")
     setSuccess("")
+
     try {
       console.log("Sending data to API:", data)
       await PublicAPi.post("/api/user/register/", {
@@ -38,163 +42,192 @@ export default function RegisterAndLogout() {
         last_name: data.lastname,
       })
 
-      setSuccess("Registration successful! Please proceed to login.")
+      setSuccess("Registration successful! Redirecting to login...")
       setTimeout(() => navigate("/login"), 2000)
-    } catch(error){
-      if (error.response && error.response.data){
-        const errorData = error.response.data;
-        let errorMessage = "";
+    } catch (error) {
+      if (error.response && error.response.data) {
+        const errorData = error.response.data
+        let errorMessage = ""
 
-        if (errorData.username){
-          errorMessage +=  `Username: ${errorData.username}\n`
+        if (errorData.username) {
+          errorMessage += `Username: ${errorData.username}\n`
         }
-        if (errorData.password){
+        if (errorData.password) {
           errorMessage += `Password: ${errorData.password}\n`
         }
-        if (errorMessage ===" " && typeof errorData === 'object'){
-          errorMessage = "Validation failed. Please check your information.";
+        if (errorMessage === "" && typeof errorData === "object") {
+          errorMessage = "Validation failed. Please check your information."
         }
-        if (errorMessage === ""  && typeof errorData === 'string'){
+        if (errorMessage === "" && typeof errorData === "string") {
           errorMessage = errorData
         }
         setError(errorMessage)
-
-      }else {
-        setError("An unexpected error has occured")}
-    }finally{
+      } else {
+        setError("An unexpected error has occurred")
+      }
+    } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
-      <div className="bg-white rounded-lg shadow-md w-full max-w-md p-8">
-        <h1 className="text-2xl font-bold text-center mb-6">Sign Up</h1>
-        {error &&(
-          <div className="p-4 bg-red-100 text-red-700 rounded-md mb-4">
-            <pre className="whitespace-pre-wrap text-sm">{error}</pre>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+      <Card className="w-full max-w-md shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
+        <CardHeader className="text-center pb-8">
+          <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <UserPlus className="h-8 w-8 text-white" />
           </div>
-        )}
-        {success &&(
-          <div className="p-4 bg-green-100 text-green-700 rounded-md mb-4">
-            {success}
-          </div>
-        )}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-              placeholder="Enter your email"
-              value={data.email}
-              onChange={(e) => setData({ ...data, email: e.target.value })}
-              required
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="firstname" className="block text-sm font-medium text-gray-700">
-                First Name
-              </label>
-              <input
-                id="firstname"
-                type="text"
-                className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="First Name"
-                value={data.firstname}
-                onChange={(e) => setData({ ...data, firstname: e.target.value })}
+          <CardTitle className="text-3xl font-bold text-gray-900">Join NeedlesY</CardTitle>
+          <p className="text-gray-600 mt-2">Create your account and start sharing</p>
+        </CardHeader>
+
+        <CardContent>
+          {error && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription className="whitespace-pre-wrap">{error}</AlertDescription>
+            </Alert>
+          )}
+
+          {success && (
+            <Alert className="mb-4 border-green-200 bg-green-50">
+              <CheckCircle className="h-4 w-4 text-green-600" />
+              <AlertDescription className="text-green-800">{success}</AlertDescription>
+            </Alert>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+                Email
+              </Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="Enter your email"
+                value={data.email}
+                onChange={(e) => setData({ ...data, email: e.target.value })}
                 required
+                className="border-gray-200 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
-            <div>
-              <label htmlFor="lastname" className="block text-sm font-medium text-gray-700">
-                Last Name
-              </label>
-              <input
-                id="lastname"
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="firstname" className="text-sm font-medium text-gray-700">
+                  First Name
+                </Label>
+                <Input
+                  id="firstname"
+                  type="text"
+                  placeholder="First name"
+                  value={data.firstname}
+                  onChange={(e) => setData({ ...data, firstname: e.target.value })}
+                  required
+                  className="border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="lastname" className="text-sm font-medium text-gray-700">
+                  Last Name
+                </Label>
+                <Input
+                  id="lastname"
+                  type="text"
+                  placeholder="Last name"
+                  value={data.lastname}
+                  onChange={(e) => setData({ ...data, lastname: e.target.value })}
+                  required
+                  className="border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="middlename" className="text-sm font-medium text-gray-700">
+                Middle Name (Optional)
+              </Label>
+              <Input
+                id="middlename"
                 type="text"
-                className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="Last Name"
-                value={data.lastname}
-                onChange={(e) => setData({ ...data, lastname: e.target.value })}
-                required
+                placeholder="Middle name"
+                value={data.middlename}
+                onChange={(e) => setData({ ...data, middlename: e.target.value })}
+                className="border-gray-200 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
-          </div>
-          <div>
-            <label htmlFor="middlename" className="block text-sm font-medium text-gray-700">
-              Middle Name (Optional)
-            </label>
-            <input
-              id="middlename"
-              type="text"
-              className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-              placeholder="Middle Name"
-              value={data.middlename}
-              onChange={(e) => setData({ ...data, middlename: e.target.value })}
-            />
-          </div>
-          <div>
-            <label htmlFor="username" className="block text-sm font-medium text-gray-700">
-              Username
-            </label>
-            <input
-              id="username"
-              type="text"
-              className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-              placeholder="Choose a username"
-              value={data.username}
-              onChange={(e) => setData({ ...data, username: e.target.value })}
-              required
-            />
-          </div>
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-              Password
-            </label>
-            <div className="relative mt-1">
-              <input
-                id="password"
-                type={showPassword ? "text" : "password"}
-                className="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="Enter your password"
-                value={data.password}
-                onChange={(e) => setData({ ...data, password: e.target.value })}
+
+            <div className="space-y-2">
+              <Label htmlFor="username" className="text-sm font-medium text-gray-700">
+                Username
+              </Label>
+              <Input
+                id="username"
+                type="text"
+                placeholder="Choose a username"
+                value={data.username}
+                onChange={(e) => setData({ ...data, username: e.target.value })}
                 required
+                className="border-gray-200 focus:border-blue-500 focus:ring-blue-500"
               />
-              <button
-                type="button"
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5"
-                onClick={() => setShowPassword(!showPassword)}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="password" className="text-sm font-medium text-gray-700">
+                Password
+              </Label>
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Create a password"
+                  value={data.password}
+                  onChange={(e) => setData({ ...data, password: e.target.value })}
+                  required
+                  className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 pr-10"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
+              </div>
+            </div>
+
+            <Button
+              type="submit"
+              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-3"
+              disabled={loading}
+            >
+              {loading ? (
+                <div className="flex items-center">
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Creating account...
+                </div>
+              ) : (
+                "Create Account"
+              )}
+            </Button>
+          </form>
+
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-600">
+              Already have an account?{" "}
+              <Button
+                variant="link"
+                className="p-0 h-auto font-medium text-blue-600 hover:text-blue-500"
+                onClick={() => navigate("/login")}
               >
-                <FontAwesomeIcon icon={showPassword ? faEye : faEyeSlash} className="text-gray-500" />
-              </button>
-            </div>
+                Sign in here
+              </Button>
+            </p>
           </div>
-          
-          <button
-            type="submit"
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            disabled={loading}
-          >
-            {loading ? <FontAwesomeIcon icon={faSpinner} spin className="mr-2" /> : "Register"}
-          </button>
-        </form>
-        <div className="mt-6 text-center">
-          <p className="text-sm text-gray-600">Already have an account?</p>
-          <button
-            onClick={() => navigate("/login")}
-            className="mt-2 text-sm font-medium text-indigo-600 hover:text-indigo-500"
-          >
-            Login here
-          </button>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }
-

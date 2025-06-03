@@ -1,10 +1,12 @@
-"use client"
+
 
 import { useEffect, useState } from "react"
 import api from "../api"
-
-import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar"
-import { Card } from "@/Components/ui/card"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Textarea } from "@/components/ui/textarea"
+import { Loader2, Trash2 } from "lucide-react"
 
 function Commentmodal({ isOpen, isCLosed, onSubmit, form, title, onChange, modalType, readOnly = false }) {
   const [currentUser, setCurrentUser] = useState({
@@ -66,183 +68,88 @@ function Commentmodal({ isOpen, isCLosed, onSubmit, form, title, onChange, modal
   const rendermodalcontent = () => {
     if (modalType === "edit") {
       return (
-        <Card className="max-w-xl w-full flex items-center rounded-lg">
-          <Avatar className="mr-[10px] ml-[10px]">
-            <AvatarImage src={currentUser?.image || "/placeholder.svg"} />
-            <AvatarFallback>{currentUser?.username?.[0]}</AvatarFallback>
-          </Avatar>
+        <Card className="max-w-xl w-full bg-white shadow-2xl border-0">
+          <CardContent className="p-4">
+            <div className="flex items-start gap-3">
+              <Avatar className="h-10 w-10 ring-2 ring-gray-100 flex-shrink-0">
+                <AvatarImage src={currentUser?.image || "/placeholder.svg"} />
+                <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+                  {currentUser?.username?.[0]?.toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
 
-          <form onSubmit={handleSubmit} className="flex flex-1 items-center">
-            <textarea
-              name="editcommentcontent"
-              onInput={(e) => {
-                e.target.style.height = "auto"
-                e.target.style.height = e.target.scrollHeight + "px"
-              }}
-              value={form.commentcontent}
-              onChange={onChange}
-              className="flex-1 px-3 py-2 rounded-md overflow-hidden focus:outline-none resize-none min-h-[40px]"
-              rows="1"
-              placeholder="Edit comment..."
-            ></textarea>
-            <div className="ml-2 mr-2 flex gap-2">
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className={`
-                  px-6 py-2
-                  text-white
-                  rounded-lg
-                  font-semibold
-                  text-sm
-                  tracking-wide
-                  flex items-center justify-center
-                  transition-all
-                  duration-200
-                  focus:outline-none
-                  focus:ring-2
-                  focus:ring-offset-2
-                  shadow-lg
-                  ${
-                    isSubmitting
-                      ? "bg-gray-400 cursor-not-allowed"
-                      : "bg-blue-600 hover:bg-blue-700 active:bg-blue-800 focus:ring-blue-500 hover:shadow-xl"
-                  }
-                `}
-              >
-                {isSubmitting ? (
-                  <div className="flex items-center">
-                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    Saving...
-                  </div>
-                ) : (
-                  "Save"
-                )}
-              </button>
-              <button
-                type="button"
-                onClick={isCLosed}
-                className="
-                  px-4 py-2
-                  text-gray-700
-                  bg-gray-100
-                  hover:bg-gray-200
-                  rounded-lg
-                  font-medium
-                  text-sm
-                  transition-colors
-                  duration-200
-                  focus:outline-none
-                  focus:ring-2
-                  focus:ring-gray-500
-                  focus:ring-offset-2
-                "
-              >
-                Cancel
-              </button>
+              <form onSubmit={handleSubmit} className="flex-1 space-y-3">
+                <Textarea
+                  name="editcommentcontent"
+                  value={form.commentcontent}
+                  onChange={onChange}
+                  className="min-h-[80px] border-gray-200 focus:border-blue-500 focus:ring-blue-500 resize-none"
+                  placeholder="Edit your comment..."
+                />
+
+                <div className="flex justify-end gap-2">
+                  <Button type="button" variant="outline" onClick={isCLosed} disabled={isSubmitting} className="px-4">
+                    Cancel
+                  </Button>
+                  <Button type="submit" disabled={isSubmitting} className="px-6 bg-blue-600 hover:bg-blue-700">
+                    {isSubmitting ? (
+                      <div className="flex items-center">
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        Saving...
+                      </div>
+                    ) : (
+                      "Save"
+                    )}
+                  </Button>
+                </div>
+              </form>
             </div>
-          </form>
+          </CardContent>
         </Card>
       )
     } else if (modalType === "delete") {
       return (
-        <div className="space-y-4 bg-white p-6 rounded-2xl text-center shadow-2xl">
-          <h2 className="text-xl font-bold text-gray-900">{title}</h2>
-          <p className="text-gray-600">Are you sure you want to delete this comment?</p>
-          <div className="flex justify-center gap-3 mt-6">
-            <button
-              type="button"
-              onClick={isCLosed}
-              disabled={isSubmitting}
-              className="
-                px-6 py-3
-                text-gray-700
-                bg-gray-100
-                hover:bg-gray-200
-                rounded-lg
-                font-medium
-                text-sm
-                transition-colors
-                duration-200
-                focus:outline-none
-                focus:ring-2
-                focus:ring-gray-500
-                focus:ring-offset-2
-                disabled:opacity-50
-                disabled:cursor-not-allowed
-              "
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={handleDelete}
-              disabled={isSubmitting}
-              className={`
-                px-6 py-3
-                text-white
-                rounded-lg
-                font-semibold
-                text-sm
-                transition-all
-                duration-200
-                focus:outline-none
-                focus:ring-2
-                focus:ring-offset-2
-                shadow-lg
-                flex items-center justify-center
-                ${
-                  isSubmitting
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-red-600 hover:bg-red-700 active:bg-red-800 focus:ring-red-500 hover:shadow-xl"
-                }
-              `}
-            >
-              {isSubmitting ? (
-                <div className="flex items-center">
-                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  Deleting...
-                </div>
-              ) : (
-                "Delete"
-              )}
-            </button>
-          </div>
-        </div>
+        <Card className="max-w-md w-full bg-white shadow-2xl border-0">
+          <CardContent className="p-6 text-center">
+            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Trash2 className="h-8 w-8 text-red-600" />
+            </div>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">{title}</h2>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to delete this comment? This action cannot be undone.
+            </p>
+
+            <div className="flex justify-center gap-3">
+              <Button type="button" variant="outline" onClick={isCLosed} disabled={isSubmitting} className="px-6">
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                onClick={handleDelete}
+                disabled={isSubmitting}
+                className="px-6 bg-red-600 hover:bg-red-700"
+              >
+                {isSubmitting ? (
+                  <div className="flex items-center">
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    Deleting...
+                  </div>
+                ) : (
+                  "Delete"
+                )}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       )
     }
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={isCLosed}>
+    <div
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+      onClick={isCLosed}
+    >
       <div onClick={(e) => e.stopPropagation()}>{rendermodalcontent()}</div>
     </div>
   )

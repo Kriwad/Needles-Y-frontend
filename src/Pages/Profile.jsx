@@ -1,32 +1,21 @@
-import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { formatDistanceToNow } from "date-fns";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faEllipsisV,
-  faEdit,
-  faTrash,
-  faPencil,
-} from "@fortawesome/free-solid-svg-icons";
-import { Heart, MessageCircle } from "lucide-react";
+"use client"
 
-import Navbar from "../Modals/Navbar";
-import Modal from "../Modals/Modal";
-import UsernameModal from "../Modals/UsernameModal";
-import api from "../api";
-
-import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar";
-import { Card, CardContent, CardHeader } from "@/Components/ui/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/Components/ui/dropdown";
+import { useState, useEffect } from "react"
+import { useParams, useNavigate } from "react-router-dom"
+import { formatDistanceToNow } from "date-fns"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Heart, MessageCircle, MoreHorizontal, Edit, Trash2, User, Clock, Settings, Camera } from "lucide-react"
+import Navbar from "../Modals/navbar"
+import Modal from "../Modals/modal"
+import UsernameModal from "../Modals/UsernameModal"
+import api from "../api"
 
 function Profile() {
-  const { userId } = useParams();
-  const navigate = useNavigate();
+  const { userId } = useParams()
+  const navigate = useNavigate()
 
   // States
   const [user, setUser] = useState({
@@ -34,378 +23,417 @@ function Profile() {
     username: "",
     image: null,
     bio: "",
-  });
+  })
 
-  const [currentUser, setCurrentUser] = useState("");
-  const [posts, setPosts] = useState([]);
-  const [selectedPost, setSelectedPost] = useState(null);
+  const [currentUser, setCurrentUser] = useState("")
+  const [posts, setPosts] = useState([])
+  const [selectedPost, setSelectedPost] = useState(null)
   const [formData, setFormData] = useState({
     title: "",
     content: "",
     image: null,
     video: null,
-  });
-  const [likedPost, setIsLikedPost] = useState({});
+  })
 
   // Modal states
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [showProfileModal, setShowProfileModal] = useState(false);
-  const [profileUpdated, setProfileUpdated] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false)
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [showProfileModal, setShowProfileModal] = useState(false)
+  const [profileUpdated, setProfileUpdated] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleLike = async (postID) => {
     try {
-      await api.post(`api/user/post/like/${postID}/`);
-      await fetchPosts();
+      await api.post(`api/user/post/like/${postID}/`)
+      await fetchPosts()
     } catch (error) {
-      console.log("error:", error);
+      console.log("error:", error)
     }
-    setIsLikedPost((prev) => ({
-      ...prev,
-      [postID]: !prev[postID],
-    }));
-  };
+  }
 
   // Input handlers
   const handleFormChange = (e) => {
-    const { name, value, type, files } = e.target;
+    const { name, value, type, files } = e.target
     if (type === "file") {
       setFormData((prev) => ({
         ...prev,
         [name]: files[0],
-      }));
+      }))
     } else {
       setFormData((prev) => ({
         ...prev,
         [name]: value,
-      }));
+      }))
     }
-  };
+  }
 
   // API calls
   const fetchUser = async () => {
     try {
-      const response = await api.get(`api/user/profile/${userId}`);
-      setUser(response.data);
+      const response = await api.get(`api/user/profile/${userId}`)
+      setUser(response.data)
     } catch (error) {
-      console.error("Error fetching user:", error);
+      console.error("Error fetching user:", error)
     }
-  };
+  }
+
   const fetchCurrentUser = async () => {
     try {
-      const response = await api.get("api/user/current/");
-      setCurrentUser(response.data.id);
+      const response = await api.get("api/user/current/")
+      setCurrentUser(response.data.id)
     } catch (error) {
-      console.log("error", error);
+      console.log("error", error)
     }
-  };
+  }
 
   const fetchPosts = async () => {
     try {
-      const response = await api.get(`api/user/profile/posts/${userId}`);
-      setPosts(response.data);
+      const response = await api.get(`api/user/profile/posts/${userId}`)
+      setPosts(response.data)
     } catch (error) {
-      console.error("Error fetching posts:", error);
+      console.error("Error fetching posts:", error)
     }
-  };
+  }
 
   const handleProfileChange = (e) => {
-    const { name, value, type, files } = e.target;
+    const { name, value, type, files } = e.target
 
     if (type === "file") {
       setUser((prev) => ({
         ...prev,
         [name]: files[0],
-      }));
+      }))
     } else {
       setUser((prev) => ({
         ...prev,
         [name]: value,
-      }));
+      }))
     }
-  };
+  }
+
   // Form submissions
   const handleCreatePost = async (e) => {
-    e.preventDefault();
-    const formDataToSend = new FormData();
+    e.preventDefault()
+    const formDataToSend = new FormData()
     for (const key in formData) {
       if (formData[key] instanceof FileList) {
         for (let i = 0; i < formData[key].length; i++) {
-          formDataToSend.append(`${key}`, formData[key][i]);
+          formDataToSend.append(`${key}`, formData[key][i])
         }
       } else if (formData[key]) {
-        formDataToSend.append(key, formData[key]);
+        formDataToSend.append(key, formData[key])
       }
     }
 
     try {
-      await api.post(`api/user/post/`, formDataToSend);
-      await fetchPosts();
-      setShowCreateModal(false);
-      setFormData({ title: "", content: "", image: null, video: null });
+      await api.post(`api/user/post/`, formDataToSend)
+      await fetchPosts()
+      setShowCreateModal(false)
+      setFormData({ title: "", content: "", image: null, video: null })
     } catch (error) {
-      console.error("Error creating post:", error);
+      console.error("Error creating post:", error)
     }
-  };
+  }
 
   const handleEditPost = async (e) => {
-    e.preventDefault();
-    const formDataToSend = new FormData();
+    e.preventDefault()
+    setIsSubmitting(true)
+    const formDataToSend = new FormData()
 
-    formDataToSend.append("title", formData.title);
-    formDataToSend.append("content", formData.content);
+    formDataToSend.append("title", formData.title)
+    formDataToSend.append("content", formData.content)
     if (formData.image) {
-      formDataToSend.append("image", formData.image);
+      formDataToSend.append("image", formData.image)
     }
     if (formData.video) {
-      formDataToSend.append("video", formData.video);
+      formDataToSend.append("video", formData.video)
     }
     try {
-      await api.put(`/api/user/post/edit/${selectedPost.id}/`, formDataToSend);
-      await fetchPosts();
-      setShowEditModal(false);
-      setSelectedPost(null);
+      await api.put(`/api/user/post/edit/${selectedPost.id}/`, formDataToSend)
+      await fetchPosts()
+      setShowEditModal(false)
+      setSelectedPost(null)
     } catch (error) {
-      console.error("Error updating post:", error);
+      console.error("Error updating post:", error)
+    } finally {
+      setIsSubmitting(false)
     }
-  };
+  }
 
   const handleDeletePost = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
     try {
-      await api.delete(`/api/user/post/edit/${selectedPost.id}/`);
-      await fetchPosts();
-      setShowDeleteModal(false);
-      setSelectedPost(null);
+      await api.delete(`/api/user/post/edit/${selectedPost.id}/`)
+      await fetchPosts()
+      setShowDeleteModal(false)
+      setSelectedPost(null)
     } catch (error) {
-      console.error("Error deleting post:", error);
+      console.error("Error deleting post:", error)
     }
-  };
+  }
 
   const handleProfileEdit = async (e) => {
-    e.preventDefault();
-    const formDataToSend = new FormData();
-    formDataToSend.append("fullname", user.fullname);
-    formDataToSend.append("username", user.username);
-    formDataToSend.append("bio", user.bio);
+    e.preventDefault()
+    const formDataToSend = new FormData()
+    formDataToSend.append("fullname", user.fullname)
+    formDataToSend.append("username", user.username)
+    formDataToSend.append("bio", user.bio)
     if (user.image instanceof File) {
-      formDataToSend.append("image", user.image);
+      formDataToSend.append("image", user.image)
     }
 
     try {
-      await api.patch(`api/user/profile/${userId}/`, formDataToSend);
-      setProfileUpdated((prev) => !prev);
-      await fetchUser();
-      await fetchCurrentUser();
-      await fetchPosts();
-      setShowProfileModal(false);
+      await api.patch(`api/user/profile/${userId}/`, formDataToSend)
+      setProfileUpdated((prev) => !prev)
+      await fetchUser()
+      await fetchCurrentUser()
+      await fetchPosts()
+      setShowProfileModal(false)
     } catch (error) {
-      console.error("Error updating profile:", error);
+      console.error("Error updating profile:", error)
     }
-  };
+  }
 
   useEffect(() => {
-    fetchUser();
-    fetchCurrentUser();
-    fetchPosts();
-  }, []);
+    fetchUser()
+    fetchCurrentUser()
+    fetchPosts()
+  }, [])
 
   return (
-    <div className="w-[100%] h-[100%] bg-zinc-200">
-      <Navbar
-        onOpenModal={() => setShowCreateModal(true)}
-        profileUpdated={profileUpdated}
-      />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+      <Navbar onOpenModal={() => setShowCreateModal(true)} profileUpdated={profileUpdated} />
 
-      {/* Profile Card */}
-      <div className="container mx-auto border-b-[20px]">
-        <Card
-          style={{ boxShadow: "0 2px 8px rgba(0, 0, 0, 0.3)" }}
-          className="w-full  max-w-lg mx-auto rounded-md"
-        >
-          <div className="relative h-48 bg-slate-300">
-            <Avatar
-              className="absolute top-10 left-24 transform -translate-x-1/2 translate-y-1/2 w-32 h-32 border-4 border-white"
-              onClick={
-                user && user.id === currentUser
-                  ? () => navigate("/")
-                  : undefined
-              }
-            >
-              <AvatarImage
-                className=" h- "
-                src={user?.image || "/placeholder.svg"}
-                alt={user?.fullname}
-              />
-              <AvatarFallback>
-                {user?.fullname?.[0]?.toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-          </div>
-
-          <CardContent className="pt-20 px-8">
-            <div className="flex justify-between items-center mb-4">
-              <div>
-                <h1 className="text-3xl font-bold">{user?.fullname}</h1>
-                <p className="text-xl text-gray-600">@{user?.username}</p>
-              </div>
-              {user && user.id === currentUser && (
-                <button
-                  onClick={() => setShowProfileModal(true)}
-                  className="text-gray-600 hover:text-black"
-                >
-                  <FontAwesomeIcon icon={faPencil} />
-                </button>
-              )}
+      <div className="pt-20 pb-8 px-4">
+        <div className="max-w-xl mx-auto space-y-6">
+          {/* Profile Card */}
+          <Card className="overflow-hidden bg-white/80 backdrop-blur-sm border-0 shadow-xl">
+            {/* Cover Image */}
+            <div className="relative h-32 bg-gradient-to-r from-blue-500 to-purple-600">
+              <div className="absolute inset-0 bg-black/20"></div>
             </div>
-            <p className="text-gray-700">{user?.bio || "No bio provided"}</p>
-          </CardContent>
-        </Card>
-      </div>
 
-      {/* Posts List */}
-      <div className="container mx-auto">
-        {posts.length === 0 ? (
-          <p className="text-center text-gray-500">No posts found.</p>
-        ) : (
-          posts.map((post) => (
-            <Card
-              key={post.id}
-              style={{ boxShadow: "0 2px 8px rgba(0, 0, 0, 0.3)" }}
-              className="max-w-lg mx-auto px-0 mb-[18px] rounded-md"
-            >
-              <CardHeader className="flex flex-row items-center justify-between">
-                <div className="flex items-center gap-3 pl-5">
-                  <Avatar className="h-10 w-10  ">
-                    <AvatarImage src={post.user.image || "/placeholder.svg"} />
-                    <AvatarFallback>{post.user.fullname[0]}</AvatarFallback>
+            {/* Profile Content */}
+            <CardContent className="relative px-6 pb-6">
+              {/* Profile Picture */}
+              <div className="flex justify-center -mt-16 mb-4">
+                <div className="relative">
+                  <Avatar className="h-24 w-24 border-4 border-white shadow-lg">
+                    <AvatarImage src={user?.image || "/placeholder.svg"} alt={user?.fullname} />
+                    <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-2xl">
+                      <User className="h-12 w-12" />
+                    </AvatarFallback>
                   </Avatar>
+                  {user && user.id === currentUser && (
+                    <Button
+                      size="icon"
+                      variant="outline"
+                      className="absolute -bottom-1 -right-1 h-8 w-8 rounded-full bg-white shadow-md"
+                      onClick={() => setShowProfileModal(true)}
+                    >
+                      <Camera className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              </div>
+
+              {/* User Info */}
+              <div className="text-center space-y-2">
+                <div className="flex items-center justify-center gap-2">
+                  <h1 className="text-2xl font-bold text-gray-900">{user?.fullname}</h1>
+                  {user && user.id === currentUser && (
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-8 w-8 rounded-full hover:bg-gray-100"
+                      onClick={() => setShowProfileModal(true)}
+                    >
+                      <Settings className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+                <p className="text-lg text-gray-600">@{user?.username}</p>
+                <p className="text-gray-700 max-w-md mx-auto">{user?.bio || "No bio provided"}</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Posts Section */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-semibold text-gray-900">Posts</h2>
+              <span className="text-sm text-gray-500">{posts.length} posts</span>
+            </div>
+
+            {posts.length === 0 ? (
+              <Card className="text-center py-12 bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+                <CardContent className="space-y-4">
+                  <div className="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto">
+                    <MessageCircle className="w-8 h-8 text-gray-400" />
+                  </div>
                   <div>
-                    <p className="font-semibold">{post.user.username}</p>
-                    <p className="text-xs font-extralight text-gray-500">
-                      {formatDistanceToNow(new Date(post.created_at), {
-                        addSuffix: true,
-                      })}
+                    <h3 className="text-lg font-semibold text-gray-900">No posts yet</h3>
+                    <p className="text-gray-500">
+                      {user && user.id === currentUser ? "Share your first thought!" : "No posts to show"}
                     </p>
                   </div>
-                </div>
-
-                {user && currentUser === user.id && (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger>
-                      <FontAwesomeIcon className="pr-5" icon={faEllipsisV} />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                      <DropdownMenuItem
-                        onClick={() => {
-                          setSelectedPost(post);
-                          setFormData({
-                            title: post.title,
-                            content: post.content,
-                          });
-                          setShowEditModal(true);
-                        }}
-                        className="text-blue-700"
-                      >
-                        <FontAwesomeIcon icon={faEdit} className="mr-2" />
-                        Edit
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => {
-                          setSelectedPost(post);
-                          setShowDeleteModal(true);
-                        }}
-                        className="text-red-600"
-                      >
-                        <FontAwesomeIcon icon={faTrash} className="mr-2" />
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                )}
-              </CardHeader>
-
-              <CardContent className=" h-auto px-0 ">
-                <h3 className="text-[15px] mt-[10px] mb-[10px] text-black  pl-5  ">
-                  {post.title}
-                </h3>
-                <p className="text-sm w-[95%] pl-5 text-muted-foreground whitespace-pre-wrap mt-1 break-words">
-                  {post.content}
-                </p>
-                {post.images && post.images.length > 0 && (
-                  <div className="h-auto">
-                    {post.images.map((imageItem, index) => (
-                      <img
-                        key={`image : ${index}`}
-                        src={imageItem.image}
-                        onClick={() => handleImageClick(imageItem.image)}
-                        className="mt-2 object-contain px-0 w-[100%]  h-auto  max-h-[500px] rounded-s"
-                        alt=""
-                      />
-                    ))}
-                  </div>
-                )}
-                {post.videos && post.videos.length > 0 && (
-                  <div>
-                    {post.videos.map((videoItem, index) => (
-                      <video
-                        controls
-                        className="mt-2 px-0 w-full h-auto max-h-[600px] object-contain rounded-s"
-                      >
-                        <source
-                          key={`video:${index}`}
-                          src={videoItem.video}
-                          type="video/mp4"
-                        />
-                      </video>
-                    ))}
-                  </div>
-                )}
-                <div
-                  className=" pt-2 mt-5 flex justify-end border-t-2  border-slate-300
-                 "
+                  {user && user.id === currentUser && (
+                    <Button
+                      onClick={() => setShowCreateModal(true)}
+                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                    >
+                      Create your first post
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+            ) : (
+              posts.map((post) => (
+                <Card
+                  key={post.id}
+                  className="overflow-hidden bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-200"
                 >
-                  <div className="flex items-center">
-                    {post.like_count > 0 && (
-                      <span
-                        onClick={() => navigate(`/liked/${post.id}/`)}
-                        className="mr-1 text-center text-s text-slate-600 font-semibold hover:cursor-pointer hover:text-gray-400"
-                      >
-                        Liked by {post.like_count}
-                      </span>
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-10 w-10 ring-2 ring-gray-100">
+                          <AvatarImage src={post.user.image || "/placeholder.svg"} />
+                          <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+                            <User className="h-5 w-5" />
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="font-semibold text-gray-900">{post.user.username}</p>
+                          <div className="flex items-center gap-1 text-xs text-gray-500">
+                            <Clock className="h-3 w-3" />
+                            {formatDistanceToNow(new Date(post.created_at), {
+                              addSuffix: true,
+                            })}
+                          </div>
+                        </div>
+                      </div>
+
+                      {user && currentUser === user.id && (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-gray-100 rounded-full">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-48">
+                            <DropdownMenuItem
+                              onClick={() => {
+                                setSelectedPost(post)
+                                setFormData({
+                                  title: post.title,
+                                  content: post.content,
+                                  image: null,
+                                  video: null,
+                                })
+                                setShowEditModal(true)
+                              }}
+                              className="text-blue-600 focus:text-blue-600"
+                            >
+                              <Edit className="mr-2 h-4 w-4" />
+                              Edit Post
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => {
+                                setSelectedPost(post)
+                                setShowDeleteModal(true)
+                              }}
+                              className="text-red-600 focus:text-red-600"
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Delete Post
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
+                    </div>
+                  </CardHeader>
+
+                  <CardContent className="pt-0 space-y-4">
+                    {post.title && <h3 className="font-semibold text-lg text-gray-900">{post.title}</h3>}
+
+                    {post.content && (
+                      <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">{post.content}</p>
                     )}
-                    <button
-                      onClick={() => handleLike(post.id)}
-                      className="  text-primary "
-                    >
-                      <Heart
-                        className={` size-5  mr-8 ml-1 ${
-                          post.is_liked
-                            ? "text-red-600 fill-red-500"
-                            : "text-gray-600 fill-transparent"
-                        }`}
-                      />
-                    </button>
-                    {post.comment_count > 0 && (
-                      <span className=" text-center text-s text-slate-600 font-semibold mr-[5px] hover:cursor-pointer hover:text-gray-600">
-                        {post.comment_count}
-                      </span>
+
+                    {post.images && post.images.length > 0 && (
+                      <div className="space-y-2">
+                        {post.images.map((imageItem, index) => (
+                          <div key={`image-${index}`} className="relative group overflow-hidden rounded-xl">
+                            <img
+                              src={imageItem.image || "/placeholder.svg"}
+                              className="w-full h-auto max-h-96 object-cover transition-transform group-hover:scale-105"
+                              alt=""
+                            />
+                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
+                          </div>
+                        ))}
+                      </div>
                     )}
-                    <button
-                      variant="ghost"
-                      size="sm"
-                      className="text-primary"
-                      onClick={() => navigate(`/comment/${post.id}/`)}
-                    >
-                      <MessageCircle className="mr-7 size-5" />
-                    </button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))
-        )}
+
+                    {post.videos && post.videos.length > 0 && (
+                      <div className="space-y-2">
+                        {post.videos.map((videoItem, index) => (
+                          <video
+                            key={`video-${index}`}
+                            controls
+                            className="w-full h-auto max-h-96 object-cover rounded-xl"
+                          >
+                            <source src={videoItem.video} type="video/mp4" />
+                          </video>
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                      <div className="flex items-center gap-4">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleLike(post.id)}
+                          className="gap-2 hover:text-red-500"
+                        >
+                          <Heart
+                            className={`h-4 w-4 transition-all ${
+                              post.is_liked ? "text-red-500 fill-red-500" : "text-gray-600"
+                            }`}
+                          />
+                          {post.like_count > 0 && <span className="text-sm font-medium">{post.like_count}</span>}
+                        </Button>
+
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => navigate(`/comment/${post.id}/`)}
+                          className="gap-2 hover:text-blue-500"
+                        >
+                          <MessageCircle className="h-4 w-4" />
+                          {post.comment_count > 0 && <span className="text-sm font-medium">{post.comment_count}</span>}
+                        </Button>
+                      </div>
+
+                      {post.like_count > 0 && (
+                        <Button
+                          variant="link"
+                          size="sm"
+                          onClick={() => navigate(`/liked/${post.id}/`)}
+                          className="text-xs text-gray-500 p-0 h-auto hover:text-gray-700"
+                        >
+                          Liked by {post.like_count}
+                        </Button>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Modals */}
@@ -414,7 +442,7 @@ function Profile() {
         isClosed={() => setShowProfileModal(false)}
         onSubmit={handleProfileEdit}
         title="Edit Profile"
-        submitText="Save"
+        submitText="Save Changes"
         formData={user}
         handleInputChange={handleProfileChange}
         modalType="edit"
@@ -425,7 +453,7 @@ function Profile() {
         isClosed={() => setShowCreateModal(false)}
         onSubmit={handleCreatePost}
         title="Create New Post"
-        submitText="Create"
+        submitText="Create Post"
         formData={formData}
         handleInputChange={handleFormChange}
         modalType="submit"
@@ -436,7 +464,7 @@ function Profile() {
         isClosed={() => setShowEditModal(false)}
         onSubmit={handleEditPost}
         title="Edit Post"
-        submitText="Update"
+        submitText="Update Post"
         formData={formData}
         handleInputChange={handleFormChange}
         modalType="edit"
@@ -447,14 +475,14 @@ function Profile() {
         isClosed={() => setShowDeleteModal(false)}
         onSubmit={handleDeletePost}
         title="Delete Post"
-        submitText="Delete"
+        submitText="Delete Post"
         formData={formData}
         handleInputChange={handleFormChange}
         readOnly={true}
         modalType="delete"
       />
     </div>
-  );
+  )
 }
 
-export default Profile;
+export default Profile

@@ -1,142 +1,125 @@
-import React, { useEffect } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar";
-import { Card, CardContent, CardHeader } from "@/Components/ui/card";
-import imageCompression from 'browser-image-compression';
-import {Heart, MessageCircle} from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/Components/ui/dropdown";
-import Navbar from "../Modals/Navbar";
+"use client"
 
-import { useState } from "react";
-import api from "../api";
-import { useNavigate } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faEllipsisV,
-  faEdit,
-  faTrash,
-  
-} from "@fortawesome/free-solid-svg-icons";
-
-import Modal from "../Modals/Modal";
-
-import { formatDistanceToNow} from "date-fns";
-
+import { useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { formatDistanceToNow } from "date-fns"
+import imageCompression from "browser-image-compression"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Heart, MessageCircle, MoreHorizontal, Edit, Trash2, User, Clock, X, ImageIcon } from "lucide-react"
+import Navbar from "../Modals/navbar"
+import Modal from "../Modals/modal"
+import api from "../api"
 
 function Home() {
-  const [modal, setModal] = useState(false);
-  const [user, setUser] = useState(null);
-  const [editModal, setEditModal] = useState(false);
-  const [deleteModal, setDeleteModal] = useState(false);
-  const [selectPost, setSelectPost] = useState(null);
-  const [search, setSearch] = useState("");
- 
+  const [modal, setModal] = useState(false)
+  const [user, setUser] = useState(null)
+  const [editModal, setEditModal] = useState(false)
+  const [deleteModal, setDeleteModal] = useState(false)
+  const [selectPost, setSelectPost] = useState(null)
   const [formData, setFormData] = useState({
     title: "",
     content: "",
     image: [],
-    video:[],
-  });
-  const [isProcessingFiles, setIsProcessingFiles] = useState(false);
-  const [imageModalOpen, setImageModalOpen] = useState(false);
-  const [selectedImage, setSelectedimage] = useState(null);
-  const [posts, setPosts] = useState([]);
-  const navigate = useNavigate();
+    video: [],
+  })
+  const [isProcessingFiles, setIsProcessingFiles] = useState(false)
+  const [imageModalOpen, setImageModalOpen] = useState(false)
+  const [selectedImage, setSelectedimage] = useState(null)
+  const [posts, setPosts] = useState([])
+  const navigate = useNavigate()
 
-  const handleLike= async (postID)=>{
-    try{
+  const handleLike = async (postID) => {
+    try {
       await api.post(`/api/user/post/like/${postID}/`)
       await fetchPosts()
-    }catch(error){
-      console.log("error:",error)
+    } catch (error) {
+      console.log("error:", error)
     }
-  
   }
 
   const handleInputChange = async (e) => {
-    const { name, value, type, files } = e.target;
-    if (type === "file") { 
-      if (name === 'image' && files.length> 0){
+    const { name, value, type, files } = e.target
+    if (type === "file") {
+      if (name === "image" && files.length > 0) {
         setIsProcessingFiles(true)
-        console.log('Image input detected. Number of files selected:', files.length); 
+        console.log("Image input detected. Number of files selected:", files.length)
         const processedFiles = []
-        const MODERATE_DIMENSION_CAP = 1920; 
+        const MODERATE_DIMENSION_CAP = 1920
 
-        for (let i = 0; i < files.length ; i ++){
+        for (let i = 0; i < files.length; i++) {
           const originalFile = files[i]
           let currentProcessedFile = originalFile
 
           try {
-            const originalFileSizeMB= originalFile.size/ 1024 /1024;
-            let targetSizeMB;
-            let compressionQuality;
-            let currentMaxWidthOrHeight = undefined;
-            if(originalFileSizeMB >= 5 ){
-              targetSizeMB = originalFileSizeMB*0.7;
-              compressionQuality = 0.75;
-              currentMaxWidthOrHeight = MODERATE_DIMENSION_CAP;
-            } else if (originalFileSizeMB > 2 && originalFileSizeMB<4){
-              targetSizeMB = originalFileSizeMB*0.75;
-              compressionQuality = 0.80;
+            const originalFileSizeMB = originalFile.size / 1024 / 1024
+            let targetSizeMB
+            let compressionQuality
+            let currentMaxWidthOrHeight = undefined
+            if (originalFileSizeMB >= 5) {
+              targetSizeMB = originalFileSizeMB * 0.7
+              compressionQuality = 0.75
+              currentMaxWidthOrHeight = MODERATE_DIMENSION_CAP
+            } else if (originalFileSizeMB > 2 && originalFileSizeMB < 4) {
+              targetSizeMB = originalFileSizeMB * 0.75
+              compressionQuality = 0.8
               currentMaxWidthOrHeight = undefined
-            }else{
-              targetSizeMB  = originalFileSizeMB*0.90 ;
-              compressionQuality = 1.0;
+            } else {
+              targetSizeMB = originalFileSizeMB * 0.9
+              compressionQuality = 1.0
               currentMaxWidthOrHeight = undefined
             }
             const option = {
               maxSizeMB: targetSizeMB,
               maxWidthOrHeight: currentMaxWidthOrHeight,
-              useWebWorker :true , 
-              fileType:originalFile.type,
-              quality : compressionQuality,
-              alwaysKeepResolution : false
+              useWebWorker: true,
+              fileType: originalFile.type,
+              quality: compressionQuality,
+              alwaysKeepResolution: false,
             }
-            console.log(`Processing image : ${i+1} original image : ${originalFile.size /1024 /1024}MB`);
-            const compressedResult = await imageCompression(originalFile , option)
-            console.log(`Processed image : ${i+1} , size : ${currentProcessedFile.size / 1024 /1024}MB`)
-            if (compressedResult instanceof Blob){
-              currentProcessedFile = new File([compressedResult] , originalFile.name ,{
-                type : compressedResult.type , 
-                lastModified : originalFile.lastModified,
-              } );
+            console.log(`Processing image : ${i + 1} original image : ${originalFile.size / 1024 / 1024}MB`)
+            const compressedResult = await imageCompression(originalFile, option)
+            console.log(`Processed image : ${i + 1} , size : ${currentProcessedFile.size / 1024 / 1024}MB`)
+            if (compressedResult instanceof Blob) {
+              currentProcessedFile = new File([compressedResult], originalFile.name, {
+                type: compressedResult.type,
+                lastModified: originalFile.lastModified,
+              })
               console.log(`Compression successfull for image {i+!}. Converted Blob to file`)
-            }else {
-              console.error(`Error Processed file ${i+1}is neither a blob or a file type`)
+            } else {
+              console.error(`Error Processed file ${i + 1}is neither a blob or a file type`)
               console.log(`- Faiing back to original file.`)
-              currentProcessedFile = originalFile;
+              currentProcessedFile = originalFile
             }
-            
-          }catch(error){
-            console.error(`Image processing (compression) failed for file ${i+1} (${originalFile.name}):`, error);
-            console.log(`  - Falling back to original file.`);
-            currentProcessedFile = originalFile;
+          } catch (error) {
+            console.error(`Image processing (compression) failed for file ${i + 1} (${originalFile.name}):`, error)
+            console.log(`  - Falling back to original file.`)
+            currentProcessedFile = originalFile
           }
           processedFiles.push(currentProcessedFile)
         }
         setIsProcessingFiles(false)
-        console.log(`All files processed. Number of files in processedFiles: ${processedFiles.length}`);
+        console.log(`All files processed. Number of files in processedFiles: ${processedFiles.length}`)
         console.log(processedFiles)
         setFormData((prevState) => ({
-        ...prevState,
-        [name]: processedFiles,
-        }));
-      }else if (name ==='video' && files.length> 0) {
+          ...prevState,
+          [name]: processedFiles,
+        }))
+      } else if (name === "video" && files.length > 0) {
+        setFormData((prevState) => ({
+          ...prevState,
+          [name]: Array.from(files),
+        }))
+      }
+    } else {
       setFormData((prevState) => ({
         ...prevState,
-        [name]: Array.from(files),
-      }));}
-    } 
-    else{
-      setFormData((prevState)=>({
-        ...prevState , [name]: value
+        [name]: value,
       }))
     }
-  };
+  }
 
   const resetForm = () => {
     setFormData({
@@ -144,367 +127,378 @@ function Home() {
       content: "",
       image: [],
       video: [],
-    });
-    setSelectPost(null);
-  };
+    })
+    setSelectPost(null)
+  }
 
-  // handels image opening
   const handleImageClick = (imageUrl) => {
-    setSelectedimage(imageUrl);
-    setImageModalOpen(true);
-  };
+    setSelectedimage(imageUrl)
+    setImageModalOpen(true)
+  }
 
   const handleCloseImageModal = () => {
-    setSelectedimage(null);
-    setImageModalOpen(false);
-  };
+    setSelectedimage(null)
+    setImageModalOpen(false)
+  }
 
-  // handles posting modal
   const handleOpenModal = () => {
-    resetForm();
-    setModal(true);
-  };
+    resetForm()
+    setModal(true)
+  }
+
   const handleCloseModel = () => {
-    resetForm();
-    setModal(false);
-  };
+    resetForm()
+    setModal(false)
+  }
 
-  const handleSearch = (e) => {
-    setSearch(e.target.value);
-  };
-
-
-  // handles creating a post
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (isProcessingFiles){
-      console.log("Files are being processed");
+    e.preventDefault()
+    if (isProcessingFiles) {
+      console.log("Files are being processed")
       return
     }
-    const formDataToSend = new FormData();
+    const formDataToSend = new FormData()
     for (const key in formData) {
-      if (Array.isArray(formData[key]) && formData[key].every(item => item instanceof File)){
-        for (let i = 0 ; i < formData[key].length ; i ++){
-          formDataToSend.append(key, formData[key][i]);
+      if (Array.isArray(formData[key]) && formData[key].every((item) => item instanceof File)) {
+        for (let i = 0; i < formData[key].length; i++) {
+          formDataToSend.append(key, formData[key][i])
         }
-      }
-      else if(formData[key]) {
-        formDataToSend.append(key, formData[key]);
+      } else if (formData[key]) {
+        formDataToSend.append(key, formData[key])
       }
     }
     try {
-      console.log("Sending FormData:", formDataToSend); // For debugging
-      for (let pair of formDataToSend.entries()) { // For debugging to see contents
-      console.log(pair[0]+ ', ' + pair[1]);  }
-      
-      await api.post("/api/user/post/", formDataToSend);
-      await fetchPosts(); // Refresh the posts list
-      handleCloseModel(); // Close the modal
-      
-     
-    } catch (error) {
-      console.log("error:", error);
-      // handleCloseModel(); // Close the modal even if there's an error
-    }
-  };
+      console.log("Sending FormData:", formDataToSend)
+      for (const pair of formDataToSend.entries()) {
+        console.log(pair[0] + ", " + pair[1])
+      }
 
-  // handels edit modal
+      await api.post("/api/user/post/", formDataToSend)
+      await fetchPosts()
+      handleCloseModel()
+    } catch (error) {
+      console.log("error:", error)
+    }
+  }
+
   const handleEditOpenModal = (post) => {
-    setEditModal(true);
-    setSelectPost(post);
+    setEditModal(true)
+    setSelectPost(post)
     setFormData({
       title: post.title,
       content: post.content,
-    });
-  };
+      image: [],
+      video: [],
+    })
+  }
+
   const handleEditCloseModal = () => {
-    setEditModal(false);
-    resetForm();
-  };
+    setEditModal(false)
+    resetForm()
+  }
 
-  // handels editing of a post
   const handleEdit = async (e) => {
-    if (!selectPost) return;
-    e.preventDefault();
-    const formDataToSend = new FormData();
-    
+    if (!selectPost) return
+    e.preventDefault()
+    const formDataToSend = new FormData()
 
-    formDataToSend.append("title", formData.title);
-    formDataToSend.append("content", formData.content);
+    formDataToSend.append("title", formData.title)
+    formDataToSend.append("content", formData.content)
     if (formData.images) {
-      formDataToSend.append("image", formData.images);
+      formDataToSend.append("image", formData.images)
     }
     if (formData.videos) {
-      formDataToSend.append("video", formData.videos);
+      formDataToSend.append("video", formData.videos)
     }
 
     try {
-      await api.put(`/api/user/post/edit/${selectPost.id}/`, formDataToSend);
-      handleEditCloseModal();
-      await fetchPosts();
-      
+      await api.put(`/api/user/post/edit/${selectPost.id}/`, formDataToSend)
+      handleEditCloseModal()
+      await fetchPosts()
     } catch (error) {
-      console.log("error");
+      console.log("error")
     }
-  };
+  }
 
-  
-
-  // handles delete modal
   const handleDeleteOpenModal = (post) => {
-    setDeleteModal(true);
-    setSelectPost(post);
+    setDeleteModal(true)
+    setSelectPost(post)
     setFormData({
       title: post.title,
       content: post.content,
-    });
-  };
+      image: [],
+      video: [],
+    })
+  }
 
   const handleDeleteCloseModal = async () => {
-    setDeleteModal(false);
-  };
+    setDeleteModal(false)
+    resetForm()
+  }
 
   const handleDelete = async (e) => {
-    if (!selectPost) return;
-    e.preventDefault();
+    if (!selectPost) return
+    e.preventDefault()
     try {
-      await api.delete(`/api/user/post/edit/${selectPost.id}/`);
-      await fetchPosts();
-      handleDeleteCloseModal();
+      await api.delete(`/api/user/post/edit/${selectPost.id}/`)
+      await fetchPosts()
+      handleDeleteCloseModal()
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
-  };
+  }
 
   useEffect(() => {
-    fetchPosts();
-    fetchUser();
-  }, []);
+    fetchPosts()
+    fetchUser()
+  }, [])
 
   const fetchUser = async () => {
     try {
-      const user = await api.get("/api/user/current/");
-      setUser(user.data);
-      console.log(user.data);
+      const user = await api.get("/api/user/current/")
+      setUser(user.data)
+      console.log(user.data)
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
-  };
+  }
 
   const fetchPosts = async () => {
     try {
-      const response = await api.get("/api/user/post/list/");
-      setPosts(response.data);
-
-      
+      const response = await api.get("/api/user/post/list/")
+      setPosts(response.data)
     } catch (error) {
-      console.log("Problem fetching your data:", error);
+      console.log("Problem fetching your data:", error)
     }
-  };
-  return (
-    <>
-      <div className="w-1vh h-1vh bg-zinc-200">
-        <Navbar
-          
-       
-          onOpenModal={handleOpenModal}
-        />
+  }
 
-        {/* Post List Display */}
-        <div className="container pt-[60px] mx-auto ">
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+      <Navbar onOpenModal={handleOpenModal} />
+
+      <div className="pt-20 pb-8 px-4">
+        <div className="max-w-xl mx-auto space-y-6">
           {posts.length === 0 ? (
-            <p className="text-center text-gray-500">
-              No Needles found. Add one!
-            </p>
+            <Card className="text-center py-12 bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+              <CardContent className="space-y-4">
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center mx-auto">
+                  <ImageIcon className="w-8 h-8 text-blue-500" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">No posts yet</h3>
+                  <p className="text-gray-500">Be the first to share something amazing!</p>
+                </div>
+                <Button
+                  onClick={handleOpenModal}
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                >
+                  Create your first post
+                </Button>
+              </CardContent>
+            </Card>
           ) : (
             posts.map((post) => (
-              <div key={post.id} className=" rounded-lg  transition-shadow">
-                <div className="container flex justify-center  mx-auto">
-                  <Card key={post.id} style={{boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)'}} className="mw-full max-w-lg mx-0 px-0 rounded-lg overflow-hidden mb-[18px]  w-full">
-                    <CardHeader className="flex  flex-row items-center  justify-between space-y-0 ">
-                      <div className="flex items-center gap-3 pl-5  ">
-                        <Avatar className="h-10 w-10  " >
-                          <AvatarImage
-                            src={
-                              post.user.image ||
-                              "/placeholder.svg? height=40&width=40"
-                            }
-                            alt={post.user.username}
-                          />
-                          <AvatarFallback  onClick={()=> navigate(`/profile/${post.user.id}`)} >
-                            {post.user.fullname[0]}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex flex-col">
-                          <p
-                            className="text-sm p-0 font-bold  hover:underline cursor-pointer "
-                            onClick={() => navigate(`profile/${post.user.id}`)}
-                            
-                          >
-                            {post.user.username}
-                          </p>
-                          <p className="text-xs text-center font-extralight text-muted-foreground">
-                            {post.created_at &&
-                              formatDistanceToNow(new Date(post.created_at), {
-                                addSuffix: true,
-                              })}
-                          </p>
+              <Card
+                key={post.id}
+                className="overflow-hidden bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-200"
+              >
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-11 w-11 ring-2 ring-gray-100">
+                        <AvatarImage src={post.user.image || "/placeholder.svg"} alt={post.user.username} />
+                        <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold">
+                          <User className="h-5 w-5" />
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <Button
+                          variant="link"
+                          className="p-0 h-auto font-semibold text-gray-900 hover:text-blue-600"
+                          onClick={() => navigate(`profile/${post.user.id}`)}
+                        >
+                          {post.user.username}
+                        </Button>
+                        <div className="flex items-center gap-1 text-xs text-gray-500">
+                          <Clock className="h-3 w-3" />
+                          {post.created_at &&
+                            formatDistanceToNow(new Date(post.created_at), {
+                              addSuffix: true,
+                            })}
                         </div>
                       </div>
-                      {user && user.username === post.user.username && (
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <button className="h-8 w-8">
-                              <FontAwesomeIcon
-                                icon={faEllipsisV}
-                                className="h-4 w-4"
-                              />
-                            </button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem
-                              onClick={() => handleEditOpenModal(post)}
-                              className="text-blue-700"
-                            >
-                              <FontAwesomeIcon icon={faEdit} className="mr-2" />
-                              Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => handleDeleteOpenModal(post)}
-                              className="text-red-600"
-                            >
-                              <FontAwesomeIcon
-                                icon={faTrash}
-                                className="mr-2"
-                              />
-                              Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      )}
-                    </CardHeader>
-                    <CardContent className="   pb-0 h-auto px-0">
-                      <h3 className="text-[15px] mt-[10px] mb-[10px] text-black  pl-5  ">
-                        {post.title}
-                      </h3>
-                      <p className="text-sm w-[95%] pl-5 text-muted-foreground whitespace-pre-wrap mt-1 break-words">
-                        {post.content}
-                      </p>
-                      {post.images && post.images.length > 0 &&(
-                      <div className="h-auto" >  
-                        {post.images.map((imageItem , index)=>(
-                            <img 
-                            key={`image : ${index}`}
-                            src={imageItem.image}
+                    </div>
+
+                    {user && user.username === post.user.username && (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-gray-100 rounded-full">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-48">
+                          <DropdownMenuItem
+                            onClick={() => handleEditOpenModal(post)}
+                            className="text-blue-600 focus:text-blue-600"
+                          >
+                            <Edit className="mr-2 h-4 w-4" />
+                            Edit Post
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleDeleteOpenModal(post)}
+                            className="text-red-600 focus:text-red-600"
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete Post
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
+                  </div>
+                </CardHeader>
+
+                <CardContent className="pt-0 space-y-4">
+                  {post.title && <h3 className="font-semibold text-lg text-gray-900">{post.title}</h3>}
+
+                  {post.content && <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">{post.content}</p>}
+
+                  {post.images && post.images.length > 0 && (
+                    <div className="space-y-2">
+                      {post.images.map((imageItem, index) => (
+                        <div key={`image-${index}`} className="relative group overflow-hidden rounded-xl">
+                          <img
+                            src={imageItem.image || "/placeholder.svg"}
                             onClick={() => handleImageClick(imageItem.image)}
-                            className="mt-2 object-contain px-0 w-[100%]  h-auto  max-h-[500px]"
+                            className="w-full h-auto max-h-96 object-cover cursor-pointer transition-transform group-hover:scale-105"
                             alt=""
                           />
-                        ))}
-                         
-                      </div>
-                      
-                        
-                      )}
-                      {post.videos && post.videos.length > 0 &&(
-                      <div className="h-auto" >
-                        {post.videos.map((videoItem , index)=>(
-                        <video controls className="mt-2 px-0 w-full object-contain rounded-s h-auto max-h-[500px] ">
-                          <source key = {`video : ${index}`} src={videoItem.video} type="video/mp4" />
-                            Your browser does not support the video tag
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {post.videos && post.videos.length > 0 && (
+                    <div className="space-y-2">
+                      {post.videos.map((videoItem, index) => (
+                        <video
+                          key={`video-${index}`}
+                          controls
+                          className="w-full h-auto max-h-96 object-cover rounded-xl"
+                        >
+                          <source src={videoItem.video} type="video/mp4" />
+                          Your browser does not support the video tag
                         </video>
                       ))}
-                        
-                        </div>
-                        
-                        
-                        
-                      )}
-                      <div className="pt-2 mt-5  flex justify-end border-t-2  border-slate-300">
-                        <div className="flex items-center" >
-                      
-                          {post.like_count > 0 &&<span onClick={()=>navigate(`/liked/${post.id}/`)} className=" text-center text-s text-slate-600 font-semibold hover:cursor-pointer hover:text-gray-600" >Liked by {post.like_count}</span> }
-                            <button onClick={()=>handleLike(post.id)}  className=" text-primary ">
-                              <Heart  className={` size-5 mr-8 ml-1 ${post.is_liked ? 'text-red-600 fill-red-500':'text-gray-600 fill-transparent' }`  } />
-                            </button> 
-                            {post.comment_count > 0 && <span className=" text-center text-s text-slate-600 font-semibold mr-[5px] hover:cursor-pointer hover:text-gray-600"> {post.comment_count}</span>}
-                            <button
-                              variant="ghost"
-                              size="sm"
-                              className="text-primary"
-                              onClick={() => navigate(`/comment/${post.id}/`)}
-                            >
-                              <MessageCircle className="mr-7 size-5" />
-                            </button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
+                    </div>
+                  )}
+
+                  <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                    <div className="flex items-center gap-4">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleLike(post.id)}
+                        className="gap-2 hover:text-red-500"
+                      >
+                        <Heart
+                          className={`h-4 w-4 transition-all ${
+                            post.is_liked ? "text-red-500 fill-red-500" : "text-gray-600"
+                          }`}
+                        />
+                        {post.like_count > 0 && <span className="text-sm font-medium">{post.like_count}</span>}
+                      </Button>
+
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => navigate(`/comment/${post.id}/`)}
+                        className="gap-2 hover:text-blue-500"
+                      >
+                        <MessageCircle className="h-4 w-4" />
+                        {post.comment_count > 0 && <span className="text-sm font-medium">{post.comment_count}</span>}
+                      </Button>
+                    </div>
+
+                    {post.like_count > 0 && (
+                      <Button
+                        variant="link"
+                        size="sm"
+                        onClick={() => navigate(`/liked/${post.id}/`)}
+                        className="text-xs text-gray-500 p-0 h-auto hover:text-gray-700"
+                      >
+                        Liked by {post.like_count}
+                      </Button>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
             ))
           )}
         </div>
-
-        {imageModalOpen && selectedImage && (
-          <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75"
-            onClick={handleCloseImageModal}
-          >
-            <div className="relative max-w-[90vw] max-h-[90vh]">
-              <img
-                src={selectedImage}
-                alt=""
-                className="max-w-full max-h-[90vh] object-contain"
-              />
-              <button
-                onClick={handleCloseImageModal}
-                className="absolute top-90-p[']\78
-                /l.,8-790643c2x1fzResx right-2 text-white hover:text-gray-300 text-xl"
-              >
-                ×
-              </button>
-            </div>
-          </div>
-        )}
-
-        <Modal
-          isOpen={modal}
-          isClosed={handleCloseModel}
-          onSubmit={handleSubmit}
-          title="Create a New Needle"
-          submitText="Create"
-          formData={formData}
-          handleInputChange={handleInputChange}
-          modalType="submit"
-          isProcessingFiles={isProcessingFiles}
-        />
-
-        <Modal
-          isOpen={editModal}
-          isClosed={handleEditCloseModal}
-          onSubmit={handleEdit}
-          title="Edit Needle"
-          submitText="Update"
-          formData={formData}
-          handleInputChange={handleInputChange}
-          modalType="edit"
-        />
-
-        <Modal
-          isOpen={deleteModal}
-          onSubmit={handleDelete}
-          isClosed={handleDeleteCloseModal}
-          title="Delete Needle"
-          submitText="Delete"
-          formData={formData}
-          handleInputChange={handleInputChange}
-          readOnly={true}
-          modalType="delete"
-        />
       </div>
-    </>
-  );
+
+      {/* Image Modal */}
+      {imageModalOpen && selectedImage && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+          onClick={handleCloseImageModal}
+        >
+          <div className="relative max-w-4xl max-h-[90vh]">
+            <img
+              src={selectedImage || "/placeholder.svg"}
+              alt=""
+              className="max-w-full max-h-full object-contain rounded-lg"
+            />
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleCloseImageModal}
+              className="absolute top-2 right-2 text-white hover:bg-white/20 rounded-full"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Modals */}
+      <Modal
+        isOpen={modal}
+        isClosed={handleCloseModel}
+        onSubmit={handleSubmit}
+        title="Create New Post"
+        submitText="Create Post"
+        formData={formData}
+        handleInputChange={handleInputChange}
+        modalType="submit"
+        isProcessingFiles={isProcessingFiles}
+      />
+
+      <Modal
+        isOpen={editModal}
+        isClosed={handleEditCloseModal}
+        onSubmit={handleEdit}
+        title="Edit Post"
+        submitText="Update Post"
+        formData={formData}
+        handleInputChange={handleInputChange}
+        modalType="edit"
+      />
+
+      <Modal
+        isOpen={deleteModal}
+        onSubmit={handleDelete}
+        isClosed={handleDeleteCloseModal}
+        title="Delete Post"
+        submitText="Delete Post"
+        formData={formData}
+        handleInputChange={handleInputChange}
+        readOnly={true}
+        modalType="delete"
+      />
+    </div>
+  )
 }
 
-export default Home;
+export default Home

@@ -1,126 +1,99 @@
-import React from "react";
-import { useState , useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
-import { useParams } from "react-router-dom";
-import api from "../api";
+"use client"
+import { useState, useRef, useEffect } from "react"
+import { useNavigate } from "react-router-dom"
+import { useParams } from "react-router-dom"
+import api from "../api"
 
-import Commentmodal from "../Modals/Commentmodal";
-import Navbar from "../Modals/Navbar";
-import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar";
-import { Card, CardContent, CardHeader } from "@/Components/ui/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/Components/ui/dropdown";
-import {Heart, MessageCircle } from "lucide-react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { formatDistanceToNow, set, setISOWeek } from "date-fns";
-import {
-  faEllipsisV,
-  faEdit,
-  faTrash,
-} from "@fortawesome/free-solid-svg-icons";
+import Commentmodal from "../Modals/Commentmodal"
+import Navbar from "../Modals/Navbar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Heart, MessageCircle, MoreHorizontal, Edit3, Trash2, Send, Smile, Clock, Users } from "lucide-react"
+import { formatDistanceToNow } from "date-fns"
 
-function Comment() {
-  const navigate = useNavigate();
-  const { postId } = useParams();
-  const [editModal  , setEditModal] = useState(false);
-  const [deleteModal , setDeleteModal] = useState(false)
-  const [currentUser, setCurrentUser] = useState("");
-  const [postData, setPostData] = useState({});
-  const [comments, setComment] = useState([]);
+function UltimateComment() {
+  const navigate = useNavigate()
+  const { postId } = useParams()
+  const [editModal, setEditModal] = useState(false)
+  const [deleteModal, setDeleteModal] = useState(false)
+  const [currentUser, setCurrentUser] = useState("")
+  const [postData, setPostData] = useState({})
+  const [comments, setComment] = useState([])
   const [postcommentform, setpostcommentForm] = useState({
     commentcontent: "",
     post_id: "",
-  });
-  const [editcommentform , seteditcommentForm] = useState({
-    commentcontent : ""
   })
-  const [postForm , setpostForm ] = useState({
-    title : "",
-    content : "",
-    image:"",
-    video: ""
+  const [editcommentform, seteditcommentForm] = useState({
+    commentcontent: "",
   })
-  const [isSubmitting , setIsSubmitting]= useState(false)
-  const [refreshComment , setrefreshComment] =useState(0)
-  const [selectedComment, setSelectedComment] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [refreshComment, setrefreshComment] = useState(0)
+  const [selectedComment, setSelectedComment] = useState(null)
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false)
+  const [commentLikes, setCommentLikes] = useState({})
+  const textareaRef = useRef(null)
 
   const resetpostcommentForm = () => {
-    setpostcommentForm((prev)=>({
-      ...prev , commentcontent : ""
-    }));
-  };
-
-
-  const handleEditOpenModal = (comment , event)=>{
-  
-    setEditModal(true);
-    setSelectedComment(comment)
-    seteditcommentForm((prev)=>({
-      ...prev , commentcontent :comment.commentcontent,
-    }));
-
-  };
-  const handleEditCloseModal = ()=>{
- 
-    setEditModal(false);
-    setSelectedComment(null)
-    seteditcommentForm({commentcontent: "" })
-  };
-  const handleCommentEdit = async (e)=>{
-    console.log(selectedComment)
-    console.log(selectedComment.id)
-    console.log(postcommentform.commentcontent)
-    
-    if (!selectedComment) return
-    e.preventDefault();
-
-    if(isSubmitting) return
-    setIsSubmitting(true)
-    
-    const formData = new FormData();
-    formData.append("commentcontent",editcommentform.commentcontent)
-    try{
-      const response=await api.patch(`/api/user/edit/comment/${selectedComment.id}/`,formData)
-      await fetchComment();
-
-      handleEditCloseModal()
-      
-    }catch(error){
-      console.log(error)
-    }finally{
-      setIsSubmitting(false)
-    }
-    
+    setpostcommentForm((prev) => ({
+      ...prev,
+      commentcontent: "",
+    }))
   }
 
-  const handleDeleteOpenModal = (comment)=>{
-   
-    setDeleteModal(true);
-    seteditcommentForm((prev)=>({
-      ...prev, commentcontent : comment.commentcontent
+  const handleEditOpenModal = (comment) => {
+    setEditModal(true)
+    setSelectedComment(comment)
+    seteditcommentForm((prev) => ({
+      ...prev,
+      commentcontent: comment.commentcontent,
     }))
- 
-    setSelectedComment(comment);
-  };
-  const handleDeleteCloseModal = ()=>{
-    setDeleteModal(false);
-    setSelectedComment(null)
-  };
-  const handleCommentDeletion = async (e)=>{
-    e.preventDefault();
-    try{
-      await api.delete(`/api/user/edit/comment/${selectedComment.id}/`)
-      setrefreshComment((prev)=>prev+1)
-    
-      handleDeleteCloseModal()
-    }catch(error){
-      console.log(error);
+  }
 
+  const handleEditCloseModal = () => {
+    setEditModal(false)
+    setSelectedComment(null)
+    seteditcommentForm({ commentcontent: "" })
+  }
+
+  const handleCommentEdit = async (e) => {
+    if (!selectedComment) return
+    e.preventDefault()
+
+    const formData = new FormData()
+    formData.append("commentcontent", editcommentform.commentcontent)
+    try {
+      await api.patch(`/api/user/edit/comment/${selectedComment.id}/`, formData)
+      await fetchComment()
+      handleEditCloseModal()
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const handleDeleteOpenModal = (comment) => {
+    setDeleteModal(true)
+    seteditcommentForm((prev) => ({
+      ...prev,
+      commentcontent: comment.commentcontent,
+    }))
+    setSelectedComment(comment)
+  }
+
+  const handleDeleteCloseModal = () => {
+    setDeleteModal(false)
+    setSelectedComment(null)
+  }
+
+  const handleCommentDeletion = async (e) => {
+    e.preventDefault()
+    try {
+      await api.delete(`/api/user/edit/comment/${selectedComment.id}/`)
+      setrefreshComment((prev) => prev + 1)
+      handleDeleteCloseModal()
+    } catch (error) {
+      console.log(error)
     }
   }
 
@@ -128,405 +101,431 @@ function Comment() {
     setpostcommentForm((prev) => ({
       ...prev,
       commentcontent: e.target.value,
-    }));
-    console.log(postcommentform.commentcontent);
-  };
-  const handleCommentEditInput = (e)=>{
-    seteditcommentForm((prev)=>({
-      ...prev , commentcontent : e.target.value
+    }))
+  }
+
+  const handleCommentEditInput = (e) => {
+    seteditcommentForm((prev) => ({
+      ...prev,
+      commentcontent: e.target.value,
     }))
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    const newformData = new FormData();
+    e.preventDefault()
+    if (isSubmitting || !postcommentform.commentcontent.trim()) return
 
-    newformData.append("post_id", postId);
-    newformData.append("commentcontent", postcommentform.commentcontent);
+    setIsSubmitting(true)
+    const newformData = new FormData()
+    newformData.append("post_id", postId)
+    newformData.append("commentcontent", postcommentform.commentcontent)
+
     try {
-      await api.post(`/api/user/post/comment/${postId}/`, newformData);
-      resetpostcommentForm();
-      setrefreshComment((prev)=>prev+1)
+      await api.post(`/api/user/post/comment/${postId}/`, newformData)
+      resetpostcommentForm()
+      setrefreshComment((prev) => prev + 1)
+      // Reset textarea height
+      if (textareaRef.current) {
+        textareaRef.current.style.height = "auto"
+      }
     } catch (error) {
-      console.log(error);
+      console.log(error)
+    } finally {
+      setIsSubmitting(false)
     }
-  };
- 
+  }
 
-  
-  // const handleKeyDown = (e) => {
-  //   if (e.key === "Enter" && !e.shifKey) {
-  //     e.preventDefault;
-  //     handleSubmit(e);
-  //   }
-  // };
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault()
+      handleSubmit(e)
+    }
+  }
 
   const fetchComment = async () => {
     try {
-      const response = await api.get(`api/user/post/comment/${postId}`);
-      setComment(response.data);
-  
+      const response = await api.get(`api/user/post/comment/${postId}`)
+      setComment(response.data)
     } catch (error) {
-      console.log(error);
-    }
-  };
-  const fetchPostData = async () => {
-    try {
-      const res = await api.get(`api/user/list/post/comment/${postId}/`);
-      setPostData(res.data);
- 
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  const handleLike = async (postID) => {
-    try {
-      await api.post(`/api/user/post/like/${postID}/`);
-      fetchPostData();
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  const handleComentLike = async (commentID)=>{
-    try{
-      await api.post(`/api/user/comment/like/${commentID}/`);
-      await fetchComment()
-    }catch(error){
       console.log(error)
     }
   }
-  const userid = JSON.parse(localStorage.getItem("user_id"));
 
+  const fetchPostData = async () => {
+    try {
+      const res = await api.get(`api/user/list/post/comment/${postId}/`)
+      setPostData(res.data)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const handleLike = async (postID) => {
+    try {
+      await api.post(`/api/user/post/like/${postID}/`)
+      fetchPostData()
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const handleCommentLike = async (commentID) => {
+    // Optimistic update
+    setCommentLikes((prev) => ({
+      ...prev,
+      [commentID]: !prev[commentID],
+    }))
+
+    try {
+      await api.post(`/api/user/comment/like/${commentID}/`)
+      await fetchComment()
+    } catch (error) {
+      // Revert optimistic update on error
+      setCommentLikes((prev) => ({
+        ...prev,
+        [commentID]: !prev[commentID],
+      }))
+      console.log(error)
+    }
+  }
+
+  const userid = JSON.parse(localStorage.getItem("user_id"))
 
   const fetchCurrentUser = async () => {
     try {
-      const response = await api.get(`/api/user/current/`);
-      setCurrentUser(response.data);
-      console.log(response.data);
+      const response = await api.get(`/api/user/current/`)
+      setCurrentUser(response.data)
     } catch (error) {
-      "error:", error;
+      console.log("error:", error)
     }
-  };
+  }
 
   useEffect(() => {
-    fetchPostData();
-    fetchCurrentUser();
-    fetchComment();
-  }, [refreshComment]);
+    fetchPostData()
+    fetchCurrentUser()
+    fetchComment()
+  }, [refreshComment])
+
   return (
-    <div className="  w-full h-[100%] bg-zinc-200">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       <Navbar />
 
-      <div className=" rounded-lg pt-[70px]  flex justify-center  transition-shadow">
-        <div className="w-full max-w-2xl">
-          <Card
-            style={{ boxShadow: "0 2px 8px rgba(0, 0, 0, 0.3)" }}
-            className="mw-full  max-w-lg mx-0 px-0 rounded-lg overflow-hidden w-full"
-          >
-            <CardHeader className="flex  flex-row items-center  justify-between mx-5 space-y-4 ">
-              {/* Left Side: Avatar + Username + Date */}
-              <div className="flex gap-2">
-                <Avatar className="h-10 w-10  ">
-                  <AvatarImage src={postData?.user?.image} />
-                  <AvatarFallback
-                    onClick={() => navigate(`/profile/${postData.user.id}`)}
-                  >
-                    {postData?.user?.username[0]}
-                  </AvatarFallback>
-                </Avatar>
-
-                <div className="flex flex-col">
-                  <h2
-                    onClick={() => navigate(`/profile/${postData.user.id}`)}
-                    className="text-sm font-bold hover:underline cursor-pointer"
-                  >
-                    {postData?.user?.username}
-                  </h2>
-                  <p className="text-xs font-extralight text-gray-500">
-                    {postData?.created_at &&
-                      formatDistanceToNow(new Date(postData.created_at), {
-                        addSuffix: true,
-                      })}
-                  </p>
+      <div className="pt-20 pb-32 px-4">
+        <div className="max-w-2xl mx-auto">
+          {/* Main Post Card */}
+          <Card className="mb-6 shadow-xl border-0 bg-white/80 backdrop-blur-sm overflow-hidden">
+            <CardHeader className="pb-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="relative">
+                    <Avatar className="h-12 w-12 ring-2 ring-blue-100">
+                      <AvatarImage src={postData?.user?.image || "/placeholder.svg"} />
+                      <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold">
+                        {postData?.user?.username?.[0]?.toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
+                  </div>
+                  <div>
+                    <h3
+                      className="font-semibold text-gray-900 hover:text-blue-600 cursor-pointer transition-colors"
+                      onClick={() => navigate(`/profile/${postData.user?.id}`)}
+                    >
+                      {postData?.user?.username}
+                    </h3>
+                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                      <Clock className="w-3 h-3" />
+                      {postData?.created_at && formatDistanceToNow(new Date(postData.created_at), { addSuffix: true })}
+                    </div>
+                  </div>
                 </div>
-              </div>
 
-              <div>
                 {userid === postData?.user?.id && (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <button>
-                        <FontAwesomeIcon
-                          icon={faEllipsisV}
-                          className="h-4 w-4"
-                        />
-                      </button>
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-gray-100">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                      <DropdownMenuItem className='text-blue-700' >
-                        <FontAwesomeIcon  icon={faEdit} className="mr-2" />
-                        Edit
+                    <DropdownMenuContent align="end" className="w-48">
+                      <DropdownMenuItem className="text-blue-600 focus:text-blue-600">
+                        <Edit3 className="mr-2 h-4 w-4" />
+                        Edit Post
                       </DropdownMenuItem>
-                      <DropdownMenuItem className='text-red-500' >
-                        <FontAwesomeIcon icon={faTrash} className="mr-2" />
-                        Delete
+                      <DropdownMenuItem className="text-red-600 focus:text-red-600">
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete Post
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 )}
               </div>
-              {/* Right Side: Dropdown (if user is the owner) */}
             </CardHeader>
-            <CardContent className="pb-0 h-auto px-0">
-              {/* Content Section: Title, content, Images */}
 
-              {postData.title && (
-                <h1 className="text-[15px] mt-[10px] mb-[10px] text-black  pl-5  ">
-                  {postData.title}
-                </h1>
-              )}
+            <CardContent className="pt-0">
+              {postData.title && <h2 className="text-xl font-bold text-gray-900 mb-3">{postData.title}</h2>}
 
               {postData.content && (
-                <h1 className="text-sm w-[95%] pl-5 text-muted-foreground whitespace-pre-wrap mt-1 break-words">
-                  {postData.content}
-                </h1>
+                <p className="text-gray-700 leading-relaxed mb-4 whitespace-pre-wrap">{postData.content}</p>
               )}
 
-              {postData.images?.length > 0 &&
-                postData.images.map((image) => (
-                  <div className="h-auto" key={`image-${image.id}`}>
-                    <img
-                      src={image.image}
-                      className="mt-2 px-0 w-[100%]  h-auto  max-h-[500px] rounded-s"
-                      alt="Comment Image"
-                    />
-                  </div>
-                ))}
-              {postData.videos?.length > 0 &&
-                postData.videos.map((video) => (
-                  <CardContent key={`videos-${video.id}`} type="video/mp4">
-                    <video controls src={video.video}></video>
-                  </CardContent>
-                ))}
+              {postData.images?.length > 0 && (
+                <div className="grid gap-2 mb-4">
+                  {postData.images.map((image, index) => (
+                    <div key={`image-${image.id}`} className="relative group overflow-hidden rounded-xl">
+                      <img
+                        src={image.image || "/placeholder.svg"}
+                        alt="Post content"
+                        className="w-full h-auto max-h-96 object-cover transition-transform group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
+                    </div>
+                  ))}
+                </div>
+              )}
 
-              <div className="pt-2 mt-5  flex justify-end border-t-2  border-slate-300">
-                <div className="flex items-center">
-                  {postData.like_count > 0 && (
-                    <span
-                      onClick={() => navigate(`/liked/${postData.id}`)}
-                      className=" text-center text-s text-slate-600 font-semibold hover:cursor-pointer hover:text-gray-600"
-                    >
-                      Liked by {postData.like_count}
-                    </span>
-                  )}
-                  <button onClick={() => handleLike(postData.id)}>
-                    <Heart
-                      className={`size- mr-8 ml-1  ${
-                        postData.is_liked
-                          ? "text-red-600 fill-red-500 "
-                          : `text-gray-600 fill-transparent `
-                      }`}
-                    ></Heart>
-                  </button>
-                  {postData.comment_count > 0 &&
-                    <span className=" text-center text-s text-slate-600 font-semibold mr-[5px] hover:cursor-pointer hover:text-gray-600" >{postData.comment_count}</span>
-                  }
+              {postData.videos?.length > 0 && (
+                <div className="grid gap-2 mb-4">
+                  {postData.videos.map((video) => (
+                    <div key={`video-${video.id}`} className="relative rounded-xl overflow-hidden">
+                      <video controls src={video.video} className="w-full h-auto max-h-96 object-cover" />
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Post Actions */}
+              <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                <div className="flex items-center gap-6">
                   <button
-                    variant="ghost"
-                    size="sm"
-                    className="text-primary"
-                    onClick={() => navigate(`/comment/${postData.id}/`)}
+                    onClick={() => handleLike(postData.id)}
+                    className="flex items-center gap-2 text-gray-600 hover:text-red-500 transition-colors group"
                   >
-                    <MessageCircle className="mr-7 size-5" />
+                    <Heart
+                      className={`h-5 w-5 transition-all group-hover:scale-110 ${
+                        postData.is_liked ? "fill-red-500 text-red-500" : ""
+                      }`}
+                    />
+                    <span className="font-medium">{postData.like_count || 0}</span>
                   </button>
+
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <MessageCircle className="h-5 w-5" />
+                    <span className="font-medium">{comments.length}</span>
+                  </div>
+
                  
                 </div>
+
+                <Button variant="ghost" size="sm" className="text-gray-500 hover:text-gray-700">
+                  Share
+                </Button>
               </div>
             </CardContent>
+          </Card>
 
-            <div className="bg-neutral-200" >
+          {/* Comments Section */}
+          <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
+            <CardHeader className="pb-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-900">Comments ({comments.length})</h3>
+                
+              </div>
+            </CardHeader>
+
+            <CardContent className="pt-0">
               {comments.length === 0 ? (
-                <div className="p-5" >
-                  <p className=" font-extralight text-gray-800 " >No comments yet!</p>
+                <div className="text-center py-12">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <MessageCircle className="w-8 h-8 text-blue-500" />
+                  </div>
+                  <h4 className="text-lg font-semibold text-gray-900 mb-2">Start the conversation</h4>
+                  <p className="text-gray-500 max-w-sm mx-auto">
+                    Be the first to share your thoughts and get the discussion going!
+                  </p>
                 </div>
               ) : (
-                comments.map((comment) => (
-                  <div key = {comment.id} className="mb-[10px] mt-[30px]  flex-col">
-                    <div className="flex mt-2 flex-1 border-t-2 border-zinc-400" >
+                <div className="space-y-4">
+                  {comments.map((comment, index) => (
+                    <div
+                      key={comment.id}
+                      className="group relative animate-in slide-in-from-bottom-2 duration-300"
+                      style={{ animationDelay: `${index * 50}ms` }}
+                    >
+                      <div className="flex gap-3 p-4 rounded-2xl hover:bg-gray-50/80 transition-all duration-200">
+                        <Avatar className="h-9 w-9 ring-2 ring-gray-100 flex-shrink-0">
+                          <AvatarImage
+                            src={comment?.user?.image || "/placeholder.svg"}
+                            className="cursor-pointer"
+                            onClick={() => navigate(`/profile/${comment.user.id}`)}
+                          />
+                          <AvatarFallback
+                            className="bg-gradient-to-br from-green-400 to-blue-500 text-white text-sm font-medium cursor-pointer"
+                            onClick={() => navigate(`/profile/${comment.user.id}`)}
+                          >
+                            {comment.user.username[0]?.toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
 
-                    </div>
-                    <Card className="p-0 border-none flex  bg-neutral-200 items-center mt-[10px] rounded-md">
-                      <Avatar className="mr-[10px] ml-[20px] ">
-                        <AvatarImage
-                          onClick={() =>
-                            navigate(`/profile/${comment.user.id}`)
-                          }
-                          src={comment?.user?.image}
-                        />
-                        <AvatarFallback
-                          onClick={() =>
-                            navigate(`/profile/${comment.user.id}`)
-                          }
-                        >
-                          {comment.user.username[0]}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex flex-1 min-w-0" >
-                        <div className="flex flex-col flex-1 items-start min-w-0 rounded-md p-[8px] max-w-full ">
-                          <div className="overflow-hidden" >
-                            <span
-                              className=" font-bold "
-                              onClick={() => {
-                                navigate(`/profile/${comment.user.id}`);
-                              }}
-                            >
-                              {comment.user.username}
-                            </span>
-                            <div className="break-all text-lg overflow-hidden whitespace-normal" key={comment.id}>
-                              {comment.commentcontent}
+                        <div className="flex-1 min-w-0">
+                          <div className="bg-gray-50 rounded-2xl px-4 py-3 relative">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <h4
+                                  className="font-semibold text-sm text-gray-900 hover:text-blue-600 cursor-pointer transition-colors"
+                                  onClick={() => navigate(`/profile/${comment.user.id}`)}
+                                >
+                                  {comment.user.username}
+                                </h4>
+                                <p className="text-gray-700 mt-1 leading-relaxed break-words">
+                                  {comment.commentcontent}
+                                </p>
+                              </div>
+
+                              {comment?.user?.id === currentUser.id && (
+                                <div className="ml-3 opacity-100 group-hover:opacity-100 transition-opacity duration-200">
+                                  <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0 hover:bg-gray-200">
+                                        <MoreHorizontal className="h-3 w-3" />
+                                      </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end" className="w-40">
+                                      <DropdownMenuItem
+                                        onClick={() => handleEditOpenModal(comment)}
+                                        className="text-blue-600 focus:text-blue-600"
+                                      >
+                                        <Edit3 className="mr-2 h-4 w-4" />
+                                        Edit
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem
+                                        onClick={() => handleDeleteOpenModal(comment)}
+                                        className="text-red-600 focus:text-red-600"
+                                      >
+                                        <Trash2 className="mr-2 h-4 w-4" />
+                                        Delete
+                                      </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                  </DropdownMenu>
+                                </div>
+                              )}
                             </div>
                           </div>
+
+                          <div className="flex items-center gap-4 mt-2 ml-1">
+                            <span className="text-xs text-gray-500 font-medium">
+                              {formatDistanceToNow(new Date(comment.created_at || Date.now()), { addSuffix: true })}
+                            </span>
+
+                            <button
+                              onClick={() => handleCommentLike(comment.id)}
+                              className="flex items-center gap-1 text-xs text-gray-500 hover:text-red-500 transition-colors group"
+                            >
+                              <Heart
+                                className={`h-3 w-3 transition-all group-hover:scale-110 ${
+                                  comment.is_comment_liked || commentLikes[comment.id]
+                                    ? "fill-red-500 text-red-500"
+                                    : ""
+                                }`}
+                              />
+                              {comment.comment_like_count > 0 && (
+                                <span className="font-medium">{comment.comment_like_count}</span>
+                              )}
+                            </button>
+
+                            <button className="text-xs text-gray-500 hover:text-gray-700 font-medium transition-colors">
+                              Reply
+                            </button>
+                          </div>
                         </div>
-                        {comment?.user?.id === currentUser.id &&(
-                          <div className="mr-[10px]" >
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <button>
-                                <FontAwesomeIcon
-                                  icon={faEllipsisV}
-                                  className="h-3 w-3"
-                                />
-                              </button>
-                            
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent>
-                              <DropdownMenuItem onClick={(e)=> handleEditOpenModal(comment)}  className='text-blue-700' >
-                                <FontAwesomeIcon icon={faEdit} className="mr-2" />
-                                  Edit
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={(e)=>(handleDeleteOpenModal(comment))} className='text-red-600' >
-                                <FontAwesomeIcon icon={faTrash} className="mr-2" />
-                                  Delete
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        
-                        </div>
-                        )
-
-                        }
-                        
-
                       </div>
-                      
-                     
-                      <div className="flex items-center gap-2">
-                        <span className=" text-center text-xs text-slate-600 font-semibold hover:cursor-pointer hover:text-gray-600" >{comment.comment_like_count}</span>
-                        <button onClick={()=>handleComentLike(comment.id)} >
-                            <Heart  className={`mr-[15px] size-4 ${
-                              comment.is_comment_liked ? "text-red-600 fill-red-500 "
-                          : `text-gray-600 fill-transparent `}`}></Heart>
-                        </button>
-                        
-                      </div>
-                    </Card>
-                    <div className="ml-[60px] mt-[5px] font-bold text-sm text-zinc-500 ">
-                      <span>Reply</span>
                     </div>
-                    <div className="ml-[100px] font-bold text-sm text-zinc-500">
-                      <span>View replies</span>
-                    </div>
-                    
-                  </div>
-                ))
-              )}
-            </div>
-          </Card>
-
-          <Card className="mt-[30px] fixed bottom-0 max-w-lg w-full flex items-center rounded-md">
-            <Avatar className='mr-[10px] ml-[10px]' >
-              <AvatarImage src={currentUser?.image} />
-              <AvatarFallback>
-                <button onClick={() => navigate(`/profile/${currentUser.id}`)}>
-                  {currentUser?.username?.[0]}
-                </button>
-              </AvatarFallback>
-            </Avatar>
-
-            <div className="flex flex-1 items-center">
-   
-              <form onSubmit={handleSubmit} className="flex flex-1 items-center"> 
-                <textarea
-                  name="commentcontent"
-                  onInput={(e) => {
-                    e.target.style.height = "auto";
-                    e.target.style.height = e.target.scrollHeight + "px";
-                  }}
-                  value={postcommentform.commentcontent}
-                  onChange={handleCommentInput}
-                  className="flex-1 px-3 py-2 rounded-md overflow-hidden focus:outline-none resize-none min-h-[40px]" 
-                  rows="1"
-                  placeholder="Type your comment..."
-                >
-                </textarea>
-                <div className="ml-2 mr-2">
-                  <button
-                    className={`
-                      px-6 py-2
-                      text-white
-                      rounded-lg
-                      font-semibold
-                      text-sm
-                      tracking-wide
-                      flex items-center justify-center
-                      transition-all
-                      duration-200
-                      focus:outline-none
-                      focus:ring-2
-                      focus:ring-offset-2
-                      shadow-lg
-                      ${
-                        isSubmitting
-                          ? "bg-gray-400 cursor-not-allowed"
-                          : "bg-blue-600 hover:bg-blue-700 active:bg-blue-800 focus:ring-blue-500 hover:shadow-xl"
-                      }
-                    `}
-                    type="submit"
-                  >
-                    send
-                  </button>
+                  ))}
                 </div>
-              </form>
-            </div>
+              )}
+            </CardContent>
           </Card>
-          <div className="pb-[50px]"></div>
         </div>
       </div>
 
+      {/* Fixed Comment Input */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-200 shadow-2xl">
+        <div className="max-w-2xl mx-auto p-4">
+          <form onSubmit={handleSubmit} className="flex items-end gap-3">
+            <Avatar className="h-9 w-9 ring-2 ring-gray-100 flex-shrink-0">
+              <AvatarImage src={currentUser?.image || "/placeholder.svg"} />
+              <AvatarFallback className="bg-gradient-to-br from-purple-400 to-pink-500 text-white text-sm font-medium">
+                {currentUser?.username?.[0]?.toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+
+            <div className="flex-1 relative">
+              <textarea
+                ref={textareaRef}
+                name="commentcontent"
+                value={postcommentform.commentcontent}
+                onChange={handleCommentInput}
+                onKeyPress={handleKeyPress}
+                onInput={(e) => {
+                  e.target.style.height = "auto"
+                  e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px"
+                }}
+                disabled={isSubmitting}
+                placeholder="Write a thoughtful comment..."
+                className="w-full px-4 py-3 pr-12 bg-gray-50 border border-gray-200 rounded-2xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:opacity-50 min-h-[48px] max-h-[120px]"
+                rows="1"
+              />
+
+              
+            </div>
+
+            <Button
+              type="submit"
+              disabled={isSubmitting || !postcommentform.commentcontent.trim()}
+              className="h-12 px-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSubmitting ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  <span className="text-sm">Sending...</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Send className="h-4 w-4" />
+                  <span className="text-sm font-medium">Send</span>
+                </div>
+              )}
+            </Button>
+          </form>
+
+          <div className="flex items-center justify-between mt-2 text-xs text-gray-500">
+            <span>Press Enter to send, Shift + Enter for new line</span>
+            <span>{postcommentform.commentcontent.length}/500</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Modals */}
       <Commentmodal
         isOpen={editModal}
-     
-        onChange ={handleCommentEditInput}
+        onChange={handleCommentEditInput}
         isCLosed={handleEditCloseModal}
-        form= {editcommentform}
+        form={editcommentform}
         onSubmit={handleCommentEdit}
-        title = {"Edit comment"}
+        title={"Edit comment"}
         modalType={"edit"}
       />
       <Commentmodal
         isOpen={deleteModal}
-     
-        readOnly= {true}
+        readOnly={true}
         isCLosed={handleDeleteCloseModal}
-        form= {editcommentform}
+        form={editcommentform}
         onSubmit={handleCommentDeletion}
-        title = {"Delete comment"}
+        title={"Delete comment"}
         modalType={"delete"}
       />
-
-      
     </div>
-  );
+  )
 }
 
-export default Comment;
+export default UltimateComment
