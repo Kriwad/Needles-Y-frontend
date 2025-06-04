@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Heart, MessageCircle, MoreHorizontal, Edit, Trash2, User, Clock, Settings, Camera } from "lucide-react"
-import Navbar from "../Modals/Navbar";
-import Modal from "../Modals/Modal";
+import Navbar from "../Modals/Navbar"
+import Modal from "../Modals/Modal"
 import UsernameModal from "../Modals/UsernameModal"
 import api from "../api"
 
@@ -205,232 +205,257 @@ function Profile() {
       <Navbar onOpenModal={() => setShowCreateModal(true)} profileUpdated={profileUpdated} />
 
       <div className="pt-20 pb-8 px-4">
-        <div className="max-w-xl mx-auto space-y-6">
-          {/* Profile Card */}
-          <Card className="overflow-hidden bg-white/80 backdrop-blur-sm border-0 shadow-xl">
-            {/* Cover Image */}
-            <div className="relative h-32 bg-gradient-to-r from-blue-500 to-purple-600">
-              <div className="absolute inset-0 bg-black/20"></div>
-            </div>
-
-            {/* Profile Content */}
-            <CardContent className="relative px-6 pb-6">
-              {/* Profile Picture */}
-              <div className="flex justify-center -mt-16 mb-4">
-                <div className="relative">
-                  <Avatar className="h-24 w-24 border-4 border-white shadow-lg">
-                    <AvatarImage src={user?.image || "/placeholder.svg"} alt={user?.fullname} />
-                    <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-2xl">
-                      <User className="h-12 w-12" />
-                    </AvatarFallback>
-                  </Avatar>
-                  {user && user.id === currentUser && (
-                    <Button
-                      size="icon"
-                      variant="outline"
-                      className="absolute -bottom-1 -right-1 h-8 w-8 rounded-full bg-white shadow-md"
-                      onClick={() => setShowProfileModal(true)}
-                    >
-                      <Camera className="h-4 w-4" />
-                    </Button>
-                  )}
+        <div className="max-w-lg mx-auto">
+          {/* Two-column layout */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Left column - Profile info */}
+            <div className="md:col-span-1">
+              <Card className="sticky top-24 overflow-hidden bg-white/80 backdrop-blur-sm border-0 shadow-xl">
+                {/* Cover Image */}
+                <div className="relative h-24 bg-gradient-to-r from-blue-500 to-purple-600">
+                  <div className="absolute inset-0 bg-black/20"></div>
                 </div>
-              </div>
 
-              {/* User Info */}
-              <div className="text-center space-y-2">
-                <div className="flex items-center justify-center gap-2">
-                  <h1 className="text-2xl font-bold text-gray-900">{user?.fullname}</h1>
-                  {user && user.id === currentUser && (
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="h-8 w-8 rounded-full hover:bg-gray-100"
-                      onClick={() => setShowProfileModal(true)}
-                    >
-                      <Settings className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-                <p className="text-lg text-gray-600">@{user?.username}</p>
-                <p className="text-gray-700 max-w-md mx-auto">{user?.bio || "No bio provided"}</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Posts Section */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-gray-900">Posts</h2>
-              <span className="text-sm text-gray-500">{posts.length} posts</span>
-            </div>
-
-            {posts.length === 0 ? (
-              <Card className="text-center py-12 bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-                <CardContent className="space-y-4">
-                  <div className="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto">
-                    <MessageCircle className="w-8 h-8 text-gray-400" />
+                {/* Profile Content */}
+                <CardContent className="relative px-6 pb-6">
+                  {/* Profile Picture */}
+                  <div className="flex justify-start -mt-12 mb-4">
+                    <div className="relative">
+                      <Avatar className="h-20 w-20 border-4 border-white shadow-lg">
+                        <AvatarImage src={user?.image || "/placeholder.svg"} alt={user?.fullname} />
+                        <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-2xl">
+                          <User className="h-10 w-10" />
+                        </AvatarFallback>
+                      </Avatar>
+                      {user && user.id === currentUser && (
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          className="absolute -bottom-1 -right-1 h-7 w-7 rounded-full bg-white shadow-md"
+                          onClick={() => setShowProfileModal(true)}
+                        >
+                          <Camera className="h-3 w-3" />
+                        </Button>
+                      )}
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900">No posts yet</h3>
-                    <p className="text-gray-500">
-                      {user && user.id === currentUser ? "Share your first thought!" : "No posts to show"}
-                    </p>
+
+                  {/* User Info */}
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h1 className="text-xl font-bold text-gray-900">{user?.fullname}</h1>
+                      {user && user.id === currentUser && (
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-8 w-8 rounded-full hover:bg-gray-100"
+                          onClick={() => setShowProfileModal(true)}
+                        >
+                          <Settings className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                    <p className="text-md text-gray-600">@{user?.username}</p>
+                    <p className="text-gray-700 text-sm">{user?.bio || "No bio provided"}</p>
+
+                    <div className="pt-4 border-t border-gray-100">
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <Clock className="h-4 w-4" />
+                        <span>
+                          Joined {formatDistanceToNow(new Date(user?.created_at || new Date()), { addSuffix: true })}
+                        </span>
+                      </div>
+                    </div>
+
+                    {user && user.id === currentUser && (
+                      <Button
+                        onClick={() => setShowCreateModal(true)}
+                        className="w-full mt-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                      >
+                        Create Post
+                      </Button>
+                    )}
                   </div>
-                  {user && user.id === currentUser && (
-                    <Button
-                      onClick={() => setShowCreateModal(true)}
-                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-                    >
-                      Create your first post
-                    </Button>
-                  )}
                 </CardContent>
               </Card>
-            ) : (
-              posts.map((post) => (
-                <Card
-                  key={post.id}
-                  className="overflow-hidden bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-200"
-                >
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-10 w-10 ring-2 ring-gray-100">
-                          <AvatarImage src={post.user.image || "/placeholder.svg"} />
-                          <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
-                            <User className="h-5 w-5" />
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="font-semibold text-gray-900">{post.user.username}</p>
-                          <div className="flex items-center gap-1 text-xs text-gray-500">
-                            <Clock className="h-3 w-3" />
-                            {formatDistanceToNow(new Date(post.created_at), {
-                              addSuffix: true,
-                            })}
-                          </div>
-                        </div>
-                      </div>
+            </div>
 
-                      {user && currentUser === user.id && (
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-gray-100 rounded-full">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-48">
-                            <DropdownMenuItem
-                              onClick={() => {
-                                setSelectedPost(post)
-                                setFormData({
-                                  title: post.title,
-                                  content: post.content,
-                                  image: null,
-                                  video: null,
-                                })
-                                setShowEditModal(true)
-                              }}
-                              className="text-blue-600 focus:text-blue-600"
-                            >
-                              <Edit className="mr-2 h-4 w-4" />
-                              Edit Post
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => {
-                                setSelectedPost(post)
-                                setShowDeleteModal(true)
-                              }}
-                              className="text-red-600 focus:text-red-600"
-                            >
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              Delete Post
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      )}
+            {/* Right column - Posts */}
+            <div className="md:col-span-2 space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-gray-900">Posts</h2>
+                <span className="text-sm text-gray-500">{posts.length} posts</span>
+              </div>
+
+              {posts.length === 0 ? (
+                <Card className="text-center py-12 bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+                  <CardContent className="space-y-4">
+                    <div className="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto">
+                      <MessageCircle className="w-8 h-8 text-gray-400" />
                     </div>
-                  </CardHeader>
-
-                  <CardContent className="pt-0 space-y-4">
-                    {post.title && <h3 className="font-semibold text-lg text-gray-900">{post.title}</h3>}
-
-                    {post.content && (
-                      <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">{post.content}</p>
-                    )}
-
-                    {post.images && post.images.length > 0 && (
-                      <div className="space-y-2">
-                        {post.images.map((imageItem, index) => (
-                          <div key={`image-${index}`} className="relative group overflow-hidden rounded-xl">
-                            <img
-                              src={imageItem.image || "/placeholder.svg"}
-                              className="w-full h-auto max-h-96 object-cover transition-transform group-hover:scale-105"
-                              alt=""
-                            />
-                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {post.videos && post.videos.length > 0 && (
-                      <div className="space-y-2">
-                        {post.videos.map((videoItem, index) => (
-                          <video
-                            key={`video-${index}`}
-                            controls
-                            className="w-full h-auto max-h-96 object-cover rounded-xl"
-                          >
-                            <source src={videoItem.video} type="video/mp4" />
-                          </video>
-                        ))}
-                      </div>
-                    )}
-
-                    <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                      <div className="flex items-center gap-4">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleLike(post.id)}
-                          className="gap-2 hover:text-red-500"
-                        >
-                          <Heart
-                            className={`h-4 w-4 transition-all ${
-                              post.is_liked ? "text-red-500 fill-red-500" : "text-gray-600"
-                            }`}
-                          />
-                          {post.like_count > 0 && <span className="text-sm font-medium">{post.like_count}</span>}
-                        </Button>
-
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => navigate(`/comment/${post.id}/`)}
-                          className="gap-2 hover:text-blue-500"
-                        >
-                          <MessageCircle className="h-4 w-4" />
-                          {post.comment_count > 0 && <span className="text-sm font-medium">{post.comment_count}</span>}
-                        </Button>
-                      </div>
-
-                      {post.like_count > 0 && (
-                        <Button
-                          variant="link"
-                          size="sm"
-                          onClick={() => navigate(`/liked/${post.id}/`)}
-                          className="text-xs text-gray-500 p-0 h-auto hover:text-gray-700"
-                        >
-                          Liked by {post.like_count}
-                        </Button>
-                      )}
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">No posts yet</h3>
+                      <p className="text-gray-500">
+                        {user && user.id === currentUser ? "Share your first thought!" : "No posts to show"}
+                      </p>
                     </div>
+                    {user && user.id === currentUser && (
+                      <Button
+                        onClick={() => setShowCreateModal(true)}
+                        className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                      >
+                        Create your first post
+                      </Button>
+                    )}
                   </CardContent>
                 </Card>
-              ))
-            )}
+              ) : (
+                posts.map((post) => (
+                  <Card
+                    key={post.id}
+                    className="overflow-hidden bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-200"
+                  >
+                    <CardHeader className="pb-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-10 w-10 ring-2 ring-gray-100">
+                            <AvatarImage src={post.user.image || "/placeholder.svg"} />
+                            <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+                              <User className="h-5 w-5" />
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <p className="font-semibold text-gray-900">{post.user.username}</p>
+                            <div className="flex items-center gap-1 text-xs text-gray-500">
+                              <Clock className="h-3 w-3" />
+                              {formatDistanceToNow(new Date(post.created_at), {
+                                addSuffix: true,
+                              })}
+                            </div>
+                          </div>
+                        </div>
+
+                        {user && currentUser === user.id && (
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-gray-100 rounded-full">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-48">
+                              <DropdownMenuItem
+                                onClick={() => {
+                                  setSelectedPost(post)
+                                  setFormData({
+                                    title: post.title,
+                                    content: post.content,
+                                    image: null,
+                                    video: null,
+                                  })
+                                  setShowEditModal(true)
+                                }}
+                                className="text-blue-600 focus:text-blue-600"
+                              >
+                                <Edit className="mr-2 h-4 w-4" />
+                                Edit Post
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => {
+                                  setSelectedPost(post)
+                                  setShowDeleteModal(true)
+                                }}
+                                className="text-red-600 focus:text-red-600"
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Delete Post
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        )}
+                      </div>
+                    </CardHeader>
+
+                    <CardContent className="pt-0 space-y-4">
+                      {post.title && <h3 className="font-semibold text-lg text-gray-900">{post.title}</h3>}
+
+                      {post.content && (
+                        <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">{post.content}</p>
+                      )}
+
+                      {post.images && post.images.length > 0 && (
+                        <div className="space-y-2">
+                          {post.images.map((imageItem, index) => (
+                            <div key={`image-${index}`} className="relative group overflow-hidden rounded-xl">
+                              <img
+                                src={imageItem.image || "/placeholder.svg"}
+                                className="w-full h-auto max-h-96 object-cover transition-transform group-hover:scale-105"
+                                alt=""
+                              />
+                              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {post.videos && post.videos.length > 0 && (
+                        <div className="space-y-2">
+                          {post.videos.map((videoItem, index) => (
+                            <video
+                              key={`video-${index}`}
+                              controls
+                              className="w-full h-auto max-h-96 object-cover rounded-xl"
+                            >
+                              <source src={videoItem.video} type="video/mp4" />
+                            </video>
+                          ))}
+                        </div>
+                      )}
+
+                      <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                        <div className="flex items-center gap-4">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleLike(post.id)}
+                            className="gap-2 hover:text-red-500"
+                          >
+                            <Heart
+                              className={`h-4 w-4 transition-all ${
+                                post.is_liked ? "text-red-500 fill-red-500" : "text-gray-600"
+                              }`}
+                            />
+                            {post.like_count > 0 && <span className="text-sm font-medium">{post.like_count}</span>}
+                          </Button>
+
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => navigate(`/comment/${post.id}/`)}
+                            className="gap-2 hover:text-blue-500"
+                          >
+                            <MessageCircle className="h-4 w-4" />
+                            {post.comment_count > 0 && (
+                              <span className="text-sm font-medium">{post.comment_count}</span>
+                            )}
+                          </Button>
+                        </div>
+
+                        {post.like_count > 0 && (
+                          <Button
+                            variant="link"
+                            size="sm"
+                            onClick={() => navigate(`/liked/${post.id}/`)}
+                            className="text-xs text-gray-500 p-0 h-auto hover:text-gray-700"
+                          >
+                            Liked by {post.like_count}
+                          </Button>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
+            </div>
           </div>
         </div>
       </div>

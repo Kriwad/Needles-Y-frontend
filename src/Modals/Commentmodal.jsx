@@ -68,7 +68,7 @@ function Commentmodal({ isOpen, isCLosed, onSubmit, form, title, onChange, modal
   const rendermodalcontent = () => {
     if (modalType === "edit") {
       return (
-        <Card className="max-w-xl w-full bg-white shadow-2xl border-0">
+        <Card className="max-w-3xl w-full bg-white shadow-2xl border-0">
           <CardContent className="p-4">
             <div className="flex items-start gap-3">
               <Avatar className="h-10 w-10 ring-2 ring-gray-100 flex-shrink-0">

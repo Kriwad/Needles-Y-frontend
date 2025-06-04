@@ -1,4 +1,4 @@
-"use client"
+
 import { useState, useRef, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { useParams } from "react-router-dom"
@@ -211,7 +211,7 @@ function UltimateComment() {
       <Navbar />
 
       <div className="pt-20 pb-32 px-4">
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-lg mx-auto">
           {/* Main Post Card */}
           <Card className="mb-6 shadow-xl border-0 bg-white/80 backdrop-blur-sm overflow-hidden">
             <CardHeader className="pb-4">

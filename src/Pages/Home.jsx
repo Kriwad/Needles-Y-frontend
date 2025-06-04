@@ -1,4 +1,4 @@
-"use client"
+
 
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
@@ -277,7 +277,7 @@ function Home() {
       <Navbar onOpenModal={handleOpenModal} />
 
       <div className="pt-20 pb-8 px-4">
-        <div className="max-w-xl mx-auto space-y-6">
+        <div className="max-w-lg mx-auto space-y-6">
           {posts.length === 0 ? (
             <Card className="text-center py-12 bg-white/80 backdrop-blur-sm border-0 shadow-lg">
               <CardContent className="space-y-4">
