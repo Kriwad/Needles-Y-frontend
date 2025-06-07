@@ -5,22 +5,32 @@ import { useParams } from "react-router-dom"
 import api from "../api"
 
 import Commentmodal from "../Modals/Commentmodal"
+import Modal from "../Modals/Modal"
 import Navbar from "../Modals/Navbar"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Heart, MessageCircle, MoreHorizontal, Edit3, Trash2, Send, Smile, Clock, Users } from "lucide-react"
+import { Heart,User , MessageCircle, MoreHorizontal, Edit3, Trash2, Send, Smile, Clock, Users } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
+
 
 function UltimateComment() {
   const navigate = useNavigate()
   const { postId } = useParams()
+  const [posteditModal , setposteditModal]= useState(false)
+  const [postdeleteModal , setpostdeleteModal] = useState(false)
   const [editModal, setEditModal] = useState(false)
   const [deleteModal, setDeleteModal] = useState(false)
   const [currentUser, setCurrentUser] = useState("")
   const [postData, setPostData] = useState({})
   const [comments, setComment] = useState([])
+  const [postform , setPostForm] = useState({
+    'title': "",
+    "content": "",
+    "image": null,
+    "video": null
+  })
   const [postcommentform, setpostcommentForm] = useState({
     commentcontent: "",
     post_id: "",
@@ -31,7 +41,7 @@ function UltimateComment() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [refreshComment, setrefreshComment] = useState(0)
   const [selectedComment, setSelectedComment] = useState(null)
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false)
+  const [postLike , setPostLike] = useState({})
   const [commentLikes, setCommentLikes] = useState({})
   const textareaRef = useRef(null)
 
@@ -40,6 +50,74 @@ function UltimateComment() {
       ...prev,
       commentcontent: "",
     }))
+  }
+  const resetFormData = ()=>{
+    setPostForm({
+      title : "",
+      content : "",
+      image : null,
+      video : null,
+    })
+  }
+  const handlePostEditOpenModal = ()=>{
+    setposteditModal(true)
+    setPostForm({
+      title: postData.title,
+      content : postData.content,
+      image : null,
+      video : null
+
+    })
+  }
+  const handlePostEditCloseModal = ()=>{
+    setposteditModal(false)
+    resetFormData()
+  }
+  
+  const handleposteditInput = (e)=>{
+    const {name , value} = e.target;
+    setPostForm((prev)=>({
+      ...prev, [name]: value
+    }))
+  }
+  const handlepostEdit =async(e)=>{
+    e.preventDefault()
+    const formdata = new FormData()
+    formdata.append("title", postform.title)
+    formdata.append("content" , postform.content)
+    try{
+      await api.patch(`/api/user/post/edit/${postId}/`,formdata)
+      await fetchPostData()
+      handlePostEditCloseModal()
+    }catch(error){
+      console.log(error)
+    }
+  }
+  const handlePostDeleteOpenModal = ()=>{
+    setpostdeleteModal(true)
+    setPostForm({
+      title: postData.title,
+      content : postData.content
+
+    })
+  }
+  const handlePostDeleteCloseModal = ()=>{
+    setpostdeleteModal(false)
+
+  }
+  const handlepostDelete = async(e)=>{
+
+    e.preventDefault()
+    try{
+
+      await api.delete(`/api/user/post/edit/${postId}/`);
+      handlePostDeleteCloseModal()
+      navigate("/")
+
+    }catch(error){
+      console.log(error)
+    }
+
   }
 
   const handleEditOpenModal = (comment) => {
@@ -74,10 +152,6 @@ function UltimateComment() {
 
   const handleDeleteOpenModal = (comment) => {
     setDeleteModal(true)
-    seteditcommentForm((prev) => ({
-      ...prev,
-      commentcontent: comment.commentcontent,
-    }))
     setSelectedComment(comment)
   }
 
@@ -124,7 +198,6 @@ function UltimateComment() {
       await api.post(`/api/user/post/comment/${postId}/`, newformData)
       resetpostcommentForm()
       setrefreshComment((prev) => prev + 1)
-      // Reset textarea height
       if (textareaRef.current) {
         textareaRef.current.style.height = "auto"
       }
@@ -161,16 +234,18 @@ function UltimateComment() {
   }
 
   const handleLike = async (postID) => {
+    setPostLike((prev)=>!prev)
     try {
       await api.post(`/api/user/post/like/${postID}/`)
       fetchPostData()
     } catch (error) {
+      setPostLike((prev)=>!prev)
       console.log(error)
     }
   }
 
   const handleCommentLike = async (commentID) => {
-    // Optimistic update
+   
     setCommentLikes((prev) => ({
       ...prev,
       [commentID]: !prev[commentID],
@@ -220,11 +295,11 @@ function UltimateComment() {
                   <div className="relative">
                     <Avatar className="h-12 w-12 ring-2 ring-blue-100">
                       <AvatarImage src={postData?.user?.image || "/placeholder.svg"} />
-                      <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold">
-                        {postData?.user?.username?.[0]?.toUpperCase()}
+                      <AvatarFallback className="bg-blue-500  text-white font-semibold">
+                        <User className="h-5 w-5" />
                       </AvatarFallback>
                     </Avatar>
-                    <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
+                   
                   </div>
                   <div>
                     <h3
@@ -248,11 +323,11 @@ function UltimateComment() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-48">
-                      <DropdownMenuItem className="text-blue-600 focus:text-blue-600">
+                      <DropdownMenuItem onClick={()=>handlePostEditOpenModal()} className="text-blue-600 focus:text-blue-600">
                         <Edit3 className="mr-2 h-4 w-4" />
                         Edit Post
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="text-red-600 focus:text-red-600">
+                      <DropdownMenuItem onClick={()=>handlePostDeleteOpenModal()}  className="text-red-600 focus:text-red-600">
                         <Trash2 className="mr-2 h-4 w-4" />
                         Delete Post
                       </DropdownMenuItem>
@@ -336,7 +411,7 @@ function UltimateComment() {
             <CardContent className="pt-0">
               {comments.length === 0 ? (
                 <div className="text-center py-12">
-                  <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <MessageCircle className="w-8 h-8 text-blue-500" />
                   </div>
                   <h4 className="text-lg font-semibold text-gray-900 mb-2">Start the conversation</h4>
@@ -360,10 +435,10 @@ function UltimateComment() {
                             onClick={() => navigate(`/profile/${comment.user.id}`)}
                           />
                           <AvatarFallback
-                            className="bg-gradient-to-br from-green-400 to-blue-500 text-white text-sm font-medium cursor-pointer"
+                            className="bg-blue-500  text-white text-sm font-medium cursor-pointer"
                             onClick={() => navigate(`/profile/${comment.user.id}`)}
                           >
-                            {comment.user.username[0]?.toUpperCase()}
+                             <User className="h-4 w-4" />
                           </AvatarFallback>
                         </Avatar>
 
@@ -454,8 +529,8 @@ function UltimateComment() {
           <form onSubmit={handleSubmit} className="flex items-end gap-3">
             <Avatar className="h-9 w-9 ring-2 ring-gray-100 flex-shrink-0">
               <AvatarImage src={currentUser?.image || "/placeholder.svg"} />
-              <AvatarFallback className="bg-gradient-to-br from-purple-400 to-pink-500 text-white text-sm font-medium">
-                {currentUser?.username?.[0]?.toUpperCase()}
+              <AvatarFallback className="bg-blue-500  text-white text-sm font-medium">
+                 <User className="h-4 w-4" />
               </AvatarFallback>
             </Avatar>
 
@@ -482,7 +557,7 @@ function UltimateComment() {
             <Button
               type="submit"
               disabled={isSubmitting || !postcommentform.commentcontent.trim()}
-              className="h-12 px-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="h-12 px-6 bg-blue-600 hover:bg-blue-700  text-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSubmitting ? (
                 <div className="flex items-center gap-2">
@@ -523,6 +598,29 @@ function UltimateComment() {
         onSubmit={handleCommentDeletion}
         title={"Delete comment"}
         modalType={"delete"}
+      />
+      <Modal
+        isOpen= {posteditModal}
+        formData={ postform}
+        isClosed={handlePostEditCloseModal}
+        onSubmit={handlepostEdit}
+        handleInputChange={handleposteditInput}
+        title="Edit Post"
+        submitText="Update Post"
+        modalType="edit"
+
+      
+      />
+      <Modal
+        isOpen= {postdeleteModal}
+        formData={postData}
+        isClosed={handlePostDeleteCloseModal}
+        onSubmit={handlepostDelete}
+        title="Delete Post"
+        submitText="Delete Post"
+        modalType="delete"
+
+      
       />
     </div>
   )

@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { Loader2, Trash2 } from "lucide-react"
+import { Loader2, Trash2 , User} from "lucide-react"
 
 function Commentmodal({ isOpen, isCLosed, onSubmit, form, title, onChange, modalType, readOnly = false }) {
   const [currentUser, setCurrentUser] = useState({
@@ -68,13 +68,13 @@ function Commentmodal({ isOpen, isCLosed, onSubmit, form, title, onChange, modal
   const rendermodalcontent = () => {
     if (modalType === "edit") {
       return (
-        <Card className="max-w-3xl w-full bg-white shadow-2xl border-0">
+        <Card className="max-w-3xl bg-white shadow-2xl border-0">
           <CardContent className="p-4">
             <div className="flex items-start gap-3">
               <Avatar className="h-10 w-10 ring-2 ring-gray-100 flex-shrink-0">
                 <AvatarImage src={currentUser?.image || "/placeholder.svg"} />
-                <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
-                  {currentUser?.username?.[0]?.toUpperCase()}
+                <AvatarFallback className="bg-blue-500 text-white">
+                  <User className="h-5 w-5" />
                 </AvatarFallback>
               </Avatar>
 
@@ -83,7 +83,7 @@ function Commentmodal({ isOpen, isCLosed, onSubmit, form, title, onChange, modal
                   name="editcommentcontent"
                   value={form.commentcontent}
                   onChange={onChange}
-                  className="min-h-[80px] border-gray-200 focus:border-blue-500 focus:ring-blue-500 resize-none"
+                  className="min-h-[150px] border-gray-200 focus:border-blue-500 focus:ring-blue-500 resize-none"
                   placeholder="Edit your comment..."
                 />
 

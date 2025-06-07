@@ -55,7 +55,7 @@ const UsernameModal = ({
             <div className="flex items-center justify-center mb-6">
               <Avatar className="h-20 w-20 border-4 border-gray-100">
                 <AvatarImage src={formData.image || "/placeholder.svg"} />
-                <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-xl">
+                <AvatarFallback className="bg-blue-500  text-white text-xl">
                   <User className="h-8 w-8" />
                 </AvatarFallback>
               </Avatar>

@@ -206,24 +206,24 @@ function Profile() {
 
       <div className="pt-20 pb-8 px-4">
         <div className="max-w-lg mx-auto">
-          {/* Two-column layout */}
+   
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Left column - Profile info */}
+         
             <div className="md:col-span-1">
               <Card className="sticky top-24 overflow-hidden bg-white/80 backdrop-blur-sm border-0 shadow-xl">
-                {/* Cover Image */}
-                <div className="relative h-24 bg-gradient-to-r from-blue-500 to-purple-600">
+          
+                <div className="relative h-32 bg-blue-500 ">
                   <div className="absolute inset-0 bg-black/20"></div>
                 </div>
 
-                {/* Profile Content */}
+           
                 <CardContent className="relative px-6 pb-6">
-                  {/* Profile Picture */}
+        
                   <div className="flex justify-start -mt-12 mb-4">
                     <div className="relative">
                       <Avatar className="h-20 w-20 border-4 border-white shadow-lg">
                         <AvatarImage src={user?.image || "/placeholder.svg"} alt={user?.fullname} />
-                        <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-2xl">
+                        <AvatarFallback className="bg-blue-500  text-white text-2xl">
                           <User className="h-10 w-10" />
                         </AvatarFallback>
                       </Avatar>
@@ -240,7 +240,7 @@ function Profile() {
                     </div>
                   </div>
 
-                  {/* User Info */}
+        
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <h1 className="text-xl font-bold text-gray-900">{user?.fullname}</h1>
@@ -259,18 +259,13 @@ function Profile() {
                     <p className="text-gray-700 text-sm">{user?.bio || "No bio provided"}</p>
 
                     <div className="pt-4 border-t border-gray-100">
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <Clock className="h-4 w-4" />
-                        <span>
-                          Joined {formatDistanceToNow(new Date(user?.created_at || new Date()), { addSuffix: true })}
-                        </span>
-                      </div>
+                    
                     </div>
 
                     {user && user.id === currentUser && (
                       <Button
                         onClick={() => setShowCreateModal(true)}
-                        className="w-full mt-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                        className="w-full mt-2 bg-blue-600 "
                       >
                         Create Post
                       </Button>
@@ -302,7 +297,7 @@ function Profile() {
                     {user && user.id === currentUser && (
                       <Button
                         onClick={() => setShowCreateModal(true)}
-                        className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                        className="bg-blue-600 hover:bg-blue-700 "
                       >
                         Create your first post
                       </Button>
@@ -320,7 +315,7 @@ function Profile() {
                         <div className="flex items-center gap-3">
                           <Avatar className="h-10 w-10 ring-2 ring-gray-100">
                             <AvatarImage src={post.user.image || "/placeholder.svg"} />
-                            <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+                            <AvatarFallback className="bg-blue-500 text-white">
                               <User className="h-5 w-5" />
                             </AvatarFallback>
                           </Avatar>

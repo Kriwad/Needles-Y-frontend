@@ -61,7 +61,7 @@ const Navbar = ({ onOpenModal, profileUpdated }) => {
           <div className="flex items-center space-x-8">
             <button
               onClick={() => navigate("/")}
-              className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent hover:from-blue-700 hover:to-purple-700 transition-all"
+              className="text-2xl font-bold b-blue-600  bg-clip-text text-transparent hover:bg-blue-700 hover: transition-all"
             >
               NeedlesY
             </button>
@@ -85,7 +85,7 @@ const Navbar = ({ onOpenModal, profileUpdated }) => {
               <Button
                 onClick={onOpenModal}
                 size="icon"
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-full"
+                className="bg-blue-600  hover:bg-blue-700 text-white rounded-full"
               >
                 <Plus className="h-4 w-4" />
               </Button>
@@ -102,7 +102,7 @@ const Navbar = ({ onOpenModal, profileUpdated }) => {
               >
                 <Avatar className="h-8 w-8 ring-2 ring-gray-100">
                   <AvatarImage src={userData.image || "/placeholder.svg"} alt={userData.fullname} />
-                  <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-sm">
+                  <AvatarFallback className="bg-blue-500  text-white text-sm">
                     {userData.fullname[0]?.toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
@@ -121,7 +121,7 @@ const Navbar = ({ onOpenModal, profileUpdated }) => {
         <div className="md:hidden flex items-center justify-between h-16">
           <button
             onClick={() => navigate("/")}
-            className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
+            className="text-xl font-bold bg-blue-600 bg-clip-text text-transparent"
           >
             NeedlesY
           </button>
@@ -144,7 +144,7 @@ const Navbar = ({ onOpenModal, profileUpdated }) => {
               <Button
                 onClick={onOpenModal}
                 size="icon"
-                className="h-9 w-9 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-full"
+                className="h-9 w-9 bg-blue-600  hover:bg-blue-700 hover: text-white rounded-full"
               >
                 <Plus className="h-4 w-4" />
               </Button>
@@ -170,7 +170,7 @@ const Navbar = ({ onOpenModal, profileUpdated }) => {
                       >
                         <Avatar className="h-12 w-12 ring-2 ring-gray-100">
                           <AvatarImage src={userData.image || "/placeholder.svg"} />
-                          <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+                          <AvatarFallback className="bg-blue-500  text-white">
                             {userData.fullname[0]?.toUpperCase()}
                           </AvatarFallback>
                         </Avatar>

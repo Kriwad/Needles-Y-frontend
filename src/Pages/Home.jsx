@@ -290,7 +290,7 @@ function Home() {
                 </div>
                 <Button
                   onClick={handleOpenModal}
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                  className="bg-blue-600  hover:bg-blue-700 "
                 >
                   Create your first post
                 </Button>
@@ -307,7 +307,7 @@ function Home() {
                     <div className="flex items-center gap-3">
                       <Avatar className="h-11 w-11 ring-2 ring-gray-100">
                         <AvatarImage src={post.user.image || "/placeholder.svg"} alt={post.user.username} />
-                        <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold">
+                        <AvatarFallback className="bg-blue-500 text-white font-semibold">
                           <User className="h-5 w-5" />
                         </AvatarFallback>
                       </Avatar>

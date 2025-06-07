@@ -6,7 +6,7 @@ import api from "../api"
 import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, Heart } from "lucide-react"
+import { ArrowLeft, Heart , User } from "lucide-react"
 
 function Liked() {
   const { postId } = useParams()
@@ -68,8 +68,8 @@ function Liked() {
                 <CardContent className="flex items-center gap-4 p-4">
                   <Avatar className="h-12 w-12 ring-2 ring-gray-100">
                     <AvatarImage src={item.user.image || "/placeholder.svg"} />
-                    <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold">
-                      {item.user.username[0]?.toUpperCase()}
+                    <AvatarFallback className="bg-blue-500  text-white font-semibold">
+                       <User className="h-5 w-5" />
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0">
