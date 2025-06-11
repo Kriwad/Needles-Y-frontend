@@ -11,8 +11,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Heart,User , MessageCircle, MoreHorizontal, Edit3, Trash2, Send, Smile, Clock, Users } from "lucide-react"
+import { Heart,User , MessageCircle, MoreHorizontal, Edit3, Trash2, Send, Smile, Clock,  } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
+import CommentInput from "./CommentInput"
 
 
 function UltimateComment() {
@@ -43,7 +44,9 @@ function UltimateComment() {
   const [selectedComment, setSelectedComment] = useState(null)
   const [postLike , setPostLike] = useState({})
   const [commentLikes, setCommentLikes] = useState({})
-  const textareaRef = useRef(null)
+  const [replyID , setReplyId ] = useState(null)
+  const [replyUsername , setreplyUsername] = useState("")
+  
 
   const resetpostcommentForm = () => {
     setpostcommentForm((prev) => ({
@@ -185,34 +188,27 @@ function UltimateComment() {
     }))
   }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    if (isSubmitting || !postcommentform.commentcontent.trim()) return
-
-    setIsSubmitting(true)
-    const newformData = new FormData()
-    newformData.append("post_id", postId)
-    newformData.append("commentcontent", postcommentform.commentcontent)
-
-    try {
-      await api.post(`/api/user/post/comment/${postId}/`, newformData)
-      resetpostcommentForm()
-      setrefreshComment((prev) => prev + 1)
-      if (textareaRef.current) {
-        textareaRef.current.style.height = "auto"
-      }
-    } catch (error) {
-      console.log(error)
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
 
   const handleKeyPress = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault()
       handleSubmit(e)
     }
+  }
+
+  const handleReplyClick=(comment)=>{
+      setReplyId(comment.id)
+      setreplyUsername(comment.user.username)
+
+  }
+  const handlerefreshcomment = ()=>{
+    setrefreshComment((prev)=>prev+1)
+  }
+  
+
+  const handleReplyCancel = ()=>{
+    setreplyUsername("")
+    setReplyId(null)
   }
 
   const fetchComment = async () => {
@@ -275,6 +271,7 @@ function UltimateComment() {
     }
   }
 
+  
   useEffect(() => {
     fetchPostData()
     fetchCurrentUser()
@@ -407,7 +404,7 @@ function UltimateComment() {
                 
               </div>
             </CardHeader>
-
+       
             <CardContent className="pt-0">
               {comments.length === 0 ? (
                 <div className="text-center py-12">
@@ -508,7 +505,7 @@ function UltimateComment() {
                               )}
                             </button>
 
-                            <button className="text-xs text-gray-500 hover:text-gray-700 font-medium transition-colors">
+                            <button onClick={()=>handleReplyClick(comment)} className="text-xs text-gray-500 hover:text-gray-700 font-medium transition-colors">
                               Reply
                             </button>
                           </div>
@@ -520,64 +517,23 @@ function UltimateComment() {
               )}
             </CardContent>
           </Card>
+
         </div>
       </div>
 
       {/* Fixed Comment Input */}
       <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-200 shadow-2xl">
-        <div className="max-w-2xl mx-auto p-4">
-          <form onSubmit={handleSubmit} className="flex items-end gap-3">
-            <Avatar className="h-9 w-9 ring-2 ring-gray-100 flex-shrink-0">
-              <AvatarImage src={currentUser?.image || "/placeholder.svg"} />
-              <AvatarFallback className="bg-blue-500  text-white text-sm font-medium">
-                 <User className="h-4 w-4" />
-              </AvatarFallback>
-            </Avatar>
+              <CommentInput
+           
 
-            <div className="flex-1 relative">
-              <textarea
-                ref={textareaRef}
-                name="commentcontent"
-                value={postcommentform.commentcontent}
-                onChange={handleCommentInput}
-                onKeyPress={handleKeyPress}
-                onInput={(e) => {
-                  e.target.style.height = "auto"
-                  e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px"
-                }}
-                disabled={isSubmitting}
-                placeholder="Write a thoughtful comment..."
-                className="w-full px-4 py-3 pr-12 bg-gray-50 border border-gray-200 rounded-2xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:opacity-50 min-h-[48px] max-h-[120px]"
-                rows="1"
+                replyID = {replyID}
+                currentUser = {currentUser}
+                replyUsername= {replyUsername}
+                handleCancelReply = {handleReplyCancel}
+                handleKeyPress = {handleKeyPress}
+                postId= {postId}
+                refreshComment={handlerefreshcomment}
               />
-
-              
-            </div>
-
-            <Button
-              type="submit"
-              disabled={isSubmitting || !postcommentform.commentcontent.trim()}
-              className="h-12 px-6 bg-blue-600 hover:bg-blue-700  text-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isSubmitting ? (
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                  <span className="text-sm">Sending...</span>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <Send className="h-4 w-4" />
-                  <span className="text-sm font-medium">Send</span>
-                </div>
-              )}
-            </Button>
-          </form>
-
-          <div className="flex items-center justify-between mt-2 text-xs text-gray-500">
-            <span>Press Enter to send, Shift + Enter for new line</span>
-            <span>{postcommentform.commentcontent.length}/500</span>
-          </div>
-        </div>
       </div>
 
       {/* Modals */}
